@@ -1,4 +1,4 @@
-import socket, string, time, calendar
+import socket, string, time
 
  
 # Set all the variables necessary to connect to Twitch IRC
@@ -62,13 +62,13 @@ while True:
                     if message == "!whoami":
                         Send_message (username)
 
-                                          
+                   """
                     if message == "!vote":
                         option1=0
                         option2=0
                         #startTime = time.timegm()
                         Send_message("Voting enabled")
-                        while """username=="jereck00" and""" message!="!stopvote":
+                        while username=="jereck00" and message!="!stopvote":
                             if message == "1":
                                 option1 += 1
                             if message == "2":
@@ -77,7 +77,7 @@ while True:
                             Send_message("Option 1 wins")
                         if option2 > option1:
                             Send_message("Option 2 wins")
-                       
+                      """
 #################################################################
                 for l in parts:
                     if "End of /NAMES list" in l:
