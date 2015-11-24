@@ -54,8 +54,6 @@ while True:
                    
 ########################### Commands #############################
 
-                    #if "!timeout" in message:
-                        #  timeout(username, 600)
 
                     if message.find("lmao") != -1:
                         sendmessage("EleGiggle")
