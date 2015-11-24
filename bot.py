@@ -4,6 +4,7 @@ import socket, string, time
 # Set all the variables necessary to connect to Twitch IRC
 HOST = "irc.twitch.tv"
 NICK = "ardahbot"
+CHAN = 'jereck00'
 PORT = 6667
 PASS = "oauth:3hfhwlewgv2ydwkhohs6udttriheuo"
 readbuffer = ""
@@ -17,10 +18,13 @@ s.send("NICK " + NICK + "\r\n")
 s.send("JOIN #jereck00 \r\n")
  
 # Method for sending a message
-def Send_message(message):
+def sendmessage(message):
     s.send("PRIVMSG #jereck00 :" + message + "\r\n")
- 
- 
+def sendwhisper(message, username):
+    s.send("PRIVMSG #jereck00 :/w " + username + " " + message + "\r\n")
+def timeout(user, secs):
+    s.send(".timeout {}".format(user, secs))
+
 while True:
     readbuffer = readbuffer + s.recv(1024)
     temp = string.split(readbuffer, "\n")
@@ -49,35 +53,22 @@ while True:
                     print username + ": " + message
                    
 ########################### Commands #############################
-                    
+
+                    #if "!timeout" in message:
+                        #  timeout(username, 600)
+
                     if message.find("lmao") != -1:
-                        Send_message("EleGiggle")
+                        sendmessage("EleGiggle")
                         
                     if message == "!sliced":
-                        Send_message("**unsheeths katana**")
-                        
-                    if message == "!time":
-                        Send_message (time.ctime())
+                        sendmessage("**unsheeths katana**")
 
                     if message == "!whoami":
-                        Send_message (username)
+                        sendmessage(username)
 
-                   """
-                    if message == "!vote":
-                        option1=0
-                        option2=0
-                        #startTime = time.timegm()
-                        Send_message("Voting enabled")
-                        while username=="jereck00" and message!="!stopvote":
-                            if message == "1":
-                                option1 += 1
-                            if message == "2":
-                                option2 += 1
-                        if option1 > option2:
-                            Send_message("Option 1 wins")
-                        if option2 > option1:
-                            Send_message("Option 2 wins")
-                      """
+                    if message == "!corn":
+                        sendmessage("https://33.media.tumblr.com/b07644c8da2e4b15c6119d37078d2e16/tumblr_n6kja1gWkE1qln00mo2_400.gif")
+
 #################################################################
                 for l in parts:
                     if "End of /NAMES list" in l:
