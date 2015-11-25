@@ -21,7 +21,7 @@ s.send("JOIN #jereck00 \r\n")
 def sendmessage(message):
     s.send("PRIVMSG #jereck00 :" + message + "\r\n")
 def timeout(user, secs):
-    s.send(".timeout {}".format(user, secs))
+    s.send("PRIVMSG #jereck00 :/timeout" + user + str(secs) + "\r\n")
 
 while True:
     readbuffer = readbuffer + s.recv(1024)
@@ -52,11 +52,11 @@ while True:
                    
 ########################### Commands #############################
 
-                    if message.find("lmao") != -1:
+                    if message.find(" lmao") != -1:
                         sendmessage("EleGiggle")
                         
                     if message == "!sliced":
-                        sendmessage("**unsheeths katana**")
+                        sendmessage("**unsheathes katana**")
 
                     if message == "!whoami":
                         sendmessage(username)
@@ -66,6 +66,10 @@ while True:
 
                     if message == "!hotdog":
                         sendmessage("Kreygasm")
+
+                    if message == "!sudoku":
+                        sendmessage("He will be missed...")
+                        timeout(username, secs=30)
 
 #################################################################
                 for l in parts:
