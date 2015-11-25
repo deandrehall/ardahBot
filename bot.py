@@ -20,8 +20,6 @@ s.send("JOIN #jereck00 \r\n")
 # Method for sending a message
 def sendmessage(message):
     s.send("PRIVMSG #jereck00 :" + message + "\r\n")
-def sendwhisper(message, username):
-    s.send("PRIVMSG #jereck00 :/w " + username + " " + message + "\r\n")
 def timeout(user, secs):
     s.send(".timeout {}".format(user, secs))
 
@@ -54,7 +52,6 @@ while True:
                    
 ########################### Commands #############################
 
-
                     if message.find("lmao") != -1:
                         sendmessage("EleGiggle")
                         
@@ -66,6 +63,9 @@ while True:
 
                     if message == "!corn":
                         sendmessage("https://33.media.tumblr.com/b07644c8da2e4b15c6119d37078d2e16/tumblr_n6kja1gWkE1qln00mo2_400.gif")
+
+                    if message == "!hotdog":
+                        sendmessage("Kreygasm")
 
 #################################################################
                 for l in parts:
