@@ -18,10 +18,13 @@ s.send("NICK " + NICK + "\r\n")
 s.send("JOIN #jereck00 \r\n")
  
 # Method for sending a message
-def sendmessage(message):
-    s.send("PRIVMSG #jereck00 :" + message + "\r\n")
+def sendmessage(text):
+    s.send("PRIVMSG #jereck00 :" + text + "\r\n")
 def timeout(user, secs):
     s.send("PRIVMSG #jereck00 :/timeout" + user + str(secs) + "\r\n")
+
+#TODO: points system
+
 
 while True:
     readbuffer = readbuffer + s.recv(1024)
@@ -52,7 +55,7 @@ while True:
                    
 ########################### Commands #############################
 
-                    if message.find(" lmao") != -1:
+                    if message.find(" lmao ") != -1:
                         sendmessage("EleGiggle")
                         
                     if message == "!sliced":
@@ -70,6 +73,7 @@ while True:
                     if message == "!sudoku":
                         sendmessage("He will be missed...")
                         timeout(username, secs=30)
+
 
 #################################################################
                 for l in parts:
