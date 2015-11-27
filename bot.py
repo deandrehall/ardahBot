@@ -55,7 +55,7 @@ while True:
                    
 ########################### Commands #############################
 
-                    if message.find(" lmao ") != -1:
+                    if message == "!memes":
                         sendmessage("EleGiggle")
                         
                     if message == "!sliced":
