@@ -55,7 +55,7 @@ while True:
                    
 ########################### Commands #############################
 
-                    if message == "!memes":
+                    if message == "!meme":
                         sendmessage("EleGiggle")
                         
                     if message == "!sliced":
