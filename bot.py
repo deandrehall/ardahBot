@@ -71,9 +71,6 @@ while True:
 
                     tofile(message, username)
 
-                    if message == '!stopecho'
-                        echoflag = False
-
                     if message == "!meme":
                         sendmessage("EleGiggle")
                         
