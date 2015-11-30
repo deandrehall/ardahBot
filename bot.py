@@ -15,14 +15,29 @@ s.connect((HOST, PORT))
 s.send("PASS " + PASS + "\r\n")
 s.send("NICK " + NICK + "\r\n")
 s.send("JOIN #jereck00 \r\n")
- 
+
 # Method for sending a message
 def sendmessage(text):
     s.send("PRIVMSG #jereck00 :" + text + "\r\n")
+
 def timeout(user, secs):
     s.send("PRIVMSG #jereck00 :/timeout" + user + str(secs) + "\r\n")
 
-#TODO: points system
+def tofile(text,username):
+    textfile = open('test.txt', 'w+')
+    username = str(username)
+    text = str(text)
+    print 'writing to file'
+    textfile.write(username + ':' + text + '\r\n')
+    textfile.close()
+
+def readfile():
+    textfile = open('test.txt', 'r+')
+    print 'reading from file'
+    words = textfile.read()
+    textfile.close()
+    return words
+
 
 
 while True:
@@ -54,6 +69,11 @@ while True:
                    
 ########################### Commands #############################
 
+                    tofile(message, username)
+
+                    if message == '!stopecho'
+                        echoflag = False
+
                     if message == "!meme":
                         sendmessage("EleGiggle")
                         
@@ -72,6 +92,9 @@ while True:
                     if message == "!sudoku":
                         sendmessage("He will be missed...")
                         timeout(username, 30)
+
+                    if (message == "!read") and (username == "jereck00"):
+                        sendmessage(readfile())
 
 
 #################################################################
