@@ -1,5 +1,4 @@
-import socket, string, time
-
+import socket, string
  
 # Set all the variables necessary to connect to Twitch IRC
 HOST = "irc.twitch.tv"
@@ -72,7 +71,7 @@ while True:
 
                     if message == "!sudoku":
                         sendmessage("He will be missed...")
-                        timeout(username, secs=30)
+                        timeout(username, 30)
 
 
 #################################################################
