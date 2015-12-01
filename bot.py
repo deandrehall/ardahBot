@@ -24,12 +24,12 @@ def timeout(user, secs):
     s.send("PRIVMSG #jereck00 :/timeout" + user + str(secs) + "\r\n")
 
 def tofile(text,username):
-    textfile = open('test.txt', 'w+')
     username = str(username)
     text = str(text)
-    print 'writing to file'
-    textfile.write(username + ':' + text + '\r\n')
-    textfile.close()
+    with open('test.txt', 'a') as textfile:
+        print 'writing to file'
+        textfile.write(username + ':' + text + '\r\n')
+        textfile.close()
 
 def readfile():
     textfile = open('test.txt', 'r+')
@@ -37,8 +37,6 @@ def readfile():
     words = textfile.read()
     textfile.close()
     return words
-
-
 
 while True:
     readbuffer = readbuffer + s.recv(1024)
