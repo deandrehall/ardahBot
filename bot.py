@@ -1,4 +1,4 @@
-import socket, string
+import socket, string, time
  
 # Set all the variables necessary to connect to Twitch IRC
 HOST = "irc.twitch.tv"
@@ -34,7 +34,7 @@ def tofile(text,username):
 def readfile():
     textfile = open('test.txt', 'r+')
     print 'reading from file'
-    words = textfile.read()
+    words = textfile.readline()
     textfile.close()
     return words
 
@@ -67,7 +67,8 @@ while True:
                    
 ########################### Commands #############################
 
-                    tofile(message, username)
+                    if 'tmi.twitch.tv' or 'tmi.twitch.tv:' not in message:
+                        tofile(message, username)
 
                     if message == "!meme":
                         sendmessage("EleGiggle")
@@ -90,7 +91,6 @@ while True:
 
                     if (message == "!read") and (username == "jereck00"):
                         sendmessage(readfile())
-
 
 #################################################################
                 for l in parts:
