@@ -1,4 +1,4 @@
-import socket, string, time
+import socket, string, random, time
  
 # Set all the variables necessary to connect to Twitch IRC
 HOST = "irc.twitch.tv"
@@ -15,6 +15,11 @@ s.connect((HOST, PORT))
 s.send("PASS " + PASS + "\r\n")
 s.send("NICK " + NICK + "\r\n")
 s.send("JOIN #jereck00 \r\n")
+
+#garbage vars bc im garbage at python
+target = ''
+duel_check=False
+
 
 # Method for sending a message
 def sendmessage(text):
@@ -91,6 +96,25 @@ while True:
 
                     if (message == "!read") and (username == "jereck00"):
                         sendmessage(readfile())
+
+                    if '!duel' in message and duel_check == False:
+                        attacker = username
+                        defender = message[6:]
+                        duel_message = '/me %s has challenged %s to a duel PogChamp type !accept to confirm duel' % (attacker, defender)
+                        sendmessage(duel_message)
+
+                    if duel_check == True and username == defender and message == '!accept':
+                        coin = random.randint(0,1)
+                        if coin == 0:
+                            victory_message = '/me %s has won the duel against %s! PogChamp' % (attacker, defender)
+                            sendmessage(victory_message)
+                        if coin == 1:
+                            defeat_message = '/me %s has defeated %s in a duel! PogChamp' % (defender, attacker)
+                            sendmessage(defeat_message)
+                        defender = ''
+                        attacker = ''
+                        duel_check = False
+
 
 #################################################################
                 for l in parts:
