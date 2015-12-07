@@ -112,6 +112,7 @@ while True:
                         if coin == 1:
                             defeat_message = '/me %s has defeated %s in a duel! PogChamp' % (defender, attacker)
                             sendmessage(defeat_message)
+                            sendmessage('Never lucky BabyRage')
                         defender = ''
                         attacker = ''
                         duel_check = False
