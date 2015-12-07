@@ -18,7 +18,7 @@ s.send("JOIN #jereck00 \r\n")
 
 #garbage vars bc im garbage at python
 defender = ''
-duel_check=False
+duel_check = False
 
 
 # Method for sending a message
@@ -105,7 +105,7 @@ while True:
                         duel_check = True
 
                     if duel_check == True and username == defender and message == '!accept':
-                        coin = random.randint(0,1)
+                        coin = random.randint(0, 1)
                         if coin == 0:
                             victory_message = '/me %s has won the duel against %s! PogChamp' % (attacker, defender)
                             sendmessage(victory_message)
