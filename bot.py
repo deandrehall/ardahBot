@@ -17,7 +17,7 @@ s.send("NICK " + NICK + "\r\n")
 s.send("JOIN #jereck00 \r\n")
 
 #garbage vars bc im garbage at python
-target = ''
+defender = ''
 duel_check=False
 
 
@@ -102,6 +102,7 @@ while True:
                         defender = message[6:]
                         duel_message = '/me %s has challenged %s to a duel PogChamp type !accept to confirm duel' % (attacker, defender)
                         sendmessage(duel_message)
+                        duel_check = True
 
                     if duel_check == True and username == defender and message == '!accept':
                         coin = random.randint(0,1)
