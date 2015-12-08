@@ -1,4 +1,4 @@
-import socket, string, random, time
+import socket, string, random, twitch
  
 # Set all the variables necessary to connect to Twitch IRC
 HOST = "irc.twitch.tv"
@@ -17,6 +17,7 @@ s.send("NICK " + NICK + "\r\n")
 s.send("JOIN #jereck00 \r\n")
 
 #garbage vars bc im garbage at python
+duel_list = []
 defender = ''
 duel_check = False
 
@@ -35,13 +36,6 @@ def tofile(text,username):
         print 'writing to file'
         textfile.write(username + ':' + text + '\r\n')
         textfile.close()
-
-def readfile():
-    textfile = open('test.txt', 'r+')
-    print 'reading from file'
-    words = textfile.readline()
-    textfile.close()
-    return words
 
 while True:
     readbuffer = readbuffer + s.recv(1024)
@@ -72,7 +66,7 @@ while True:
                    
 ########################### Commands #############################
 
-                    if 'tmi.twitch.tv' or 'tmi.twitch.tv:' not in message:
+                    if 'tmi.twitch.tv' not in message:
                         tofile(message, username)
 
                     if message == "!meme":
@@ -91,31 +85,38 @@ while True:
                         sendmessage("Kreygasm")
 
                     if message == "!sudoku":
+                        kick_message = ('kicking %s from chat') % (username)
+                        print(kick_message)
                         sendmessage("He will be missed...")
-                        timeout(username, 30)
+                        timeout(username, 15)
 
-                    if (message == "!read") and (username == "jereck00"):
-                        sendmessage(readfile())
-
-                    if '!duel' in message and duel_check == False:
-                        attacker = username
-                        defender = message[6:]
-                        duel_message = '/me %s has challenged %s to a duel PogChamp type !accept to confirm duel' % (attacker, defender)
+                    if '!duel' in message and len(duel_list) == 0:
+                        duel_list.append(username)
+                        duel_list.append(message[6:])
+                        duel_message = '/me %s has challenged %s to a duel PogChamp type !accept to confirm duel' % (duel_list[0], duel_list[1])
                         sendmessage(duel_message)
-                        duel_check = True
 
-                    if duel_check == True and username == defender and message == '!accept':
+
+                    if len(duel_list) == 2 and username == duel_list[1] and message == '!accept':
                         coin = random.randint(0, 1)
                         if coin == 0:
-                            victory_message = '/me %s has won the duel against %s! PogChamp' % (attacker, defender)
+                            victory_message = '/me %s has won the duel against %s! PogChamp' % (duel_list[0], duel_list[1])
                             sendmessage(victory_message)
                         if coin == 1:
-                            defeat_message = '/me %s has defeated %s in a duel! PogChamp' % (defender, attacker)
+                            defeat_message = '/me %s has defeated %s in a duel! PogChamp' % (duel_list[1], duel_list[0])
                             sendmessage(defeat_message)
                             sendmessage('Never lucky BabyRage')
+                        duel_list.pop()
+                        duel_list.pop()
+                        duel_check = False
+
+                    if message == '!cancelduel' and username == duel_list[0] and len(duel_list) == 2:
+                        cancel_duel_message = '%s has canceled the duel' % (duel_list[0])
+                        sendmessage(cancel_duel_message)
                         defender = ''
                         attacker = ''
                         duel_check = False
+
 
 
 #################################################################
