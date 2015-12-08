@@ -1,4 +1,5 @@
 import socket, string, random, twitch
+from collections import deque
  
 # Set all the variables necessary to connect to Twitch IRC
 HOST = "irc.twitch.tv"
@@ -17,7 +18,7 @@ s.send("NICK " + NICK + "\r\n")
 s.send("JOIN #jereck00 \r\n")
 
 #garbage vars bc im garbage at python
-duel_list = []
+duel_list = deque([])
 defender = ''
 duel_check = False
 
@@ -96,7 +97,6 @@ while True:
                         duel_message = '/me %s has challenged %s to a duel PogChamp type !accept to confirm duel' % (duel_list[0], duel_list[1])
                         sendmessage(duel_message)
 
-
                     if len(duel_list) == 2 and username == duel_list[1] and message == '!accept':
                         coin = random.randint(0, 1)
                         if coin == 0:
@@ -106,18 +106,35 @@ while True:
                             defeat_message = '/me %s has defeated %s in a duel! PogChamp' % (duel_list[1], duel_list[0])
                             sendmessage(defeat_message)
                             sendmessage('Never lucky BabyRage')
-                        duel_list.pop()
-                        duel_list.pop()
-                        duel_check = False
-
+                        duel_list.popleft()
+                        duel_list.popleft()
+                        #TODO take this len() check out after implementing better queue system
                     if message == '!cancelduel' and username == duel_list[0] and len(duel_list) == 2:
                         cancel_duel_message = '%s has canceled the duel' % (duel_list[0])
                         sendmessage(cancel_duel_message)
-                        defender = ''
-                        attacker = ''
-                        duel_check = False
+                        duel_list.popleft()
+                        duel_list.popleft()
 
+                    if '!duel' in message and username not in duel_list:
+                        if message[6:] == duel_list[0]:
+                            duel_in_progress = '%s currently has a duel pending' % (duel_list[0])
+                            suggest_cancel = '%s can cancel the pending duel by typing !cancelduel' % (duel_list[0])
+                            sendmessage(duel_in_progress)
+                            sendmessage(suggest_cancel)
+                        if message[6:] == duel_list[1]:
+                            duel_in_progress = '%s currently has a duel pending' % (duel_list[1])
+                            suggest_cancel = '%s can cancel the pending duel by typing !cancelduel' % (duel_list[1])
+                            sendmessage(duel_in_progress)
+                            sendmessage(suggest_cancel)
 
+                    if message == '!decline' and len(duel_list) == 2 and username == duel_list[1]:
+                        decline_message = '%s has declined the duel with %s' % (duel_list[1], duel_list[0])
+                        sendmessage(decline_message)
+                        duel_list.popleft()
+                        duel_list.popleft()
+
+                    if '!duel' in message and len(duel_list) == 2 and username not in duel_list:
+                        sendmessage('The duel list is currently full. Please wait until the pending duel has completed')
 
 #################################################################
                 for l in parts:
