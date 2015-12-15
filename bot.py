@@ -152,9 +152,6 @@ while True:
                         duel_list.popleft()
                         duel_list.popleft()
 
-                    if message == '!duel':
-                        pass
-
                     if message == '!clearduels' and username == 'jereck00':
                         duel_list[:] = []
                         sendmessage('clearing duel queue')
