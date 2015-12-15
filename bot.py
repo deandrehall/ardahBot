@@ -1,4 +1,4 @@
-import socket, string, random, twitch
+import socket, string, random, twitch, time
 from collections import deque
  
 # Set all the variables necessary to connect to Twitch IRC
@@ -22,13 +22,13 @@ duel_list = deque([])
 defender = ''
 duel_check = False
 
-
-# Method for sending a message
 def sendmessage(text):
+# Method for sending a message
     s.send("PRIVMSG #jereck00 :" + text + "\r\n")
 
 def timeout(user, secs):
-    s.send("PRIVMSG #jereck00 :/timeout" + user + str(secs) + "\r\n")
+    timeout_message = "PRIVMSG #jereck00 :/timeout %s %s\r\n" % (user, secs)
+    s.send(timeout_message)
 
 def tofile(text,username):
     username = str(username)
@@ -37,6 +37,8 @@ def tofile(text,username):
         print 'writing to file'
         textfile.write(username + ':' + text + '\r\n')
         textfile.close()
+
+sendmessage('that me')
 
 while True:
     readbuffer = readbuffer + s.recv(1024)
@@ -135,6 +137,27 @@ while True:
 
                     if '!duel' in message and len(duel_list) == 2 and username not in duel_list:
                         sendmessage('The duel list is currently full. Please wait until the pending duel has completed')
+
+                    if '!duel' in message and message[6:] == 'ardahbot':
+                        time.sleep((random.randint(1, 3)))
+                        sendmessage('!accept')
+                        coin = random.randint(0, 1)
+                        if coin == 0:
+                            victory_message = '/me %s has won the duel against %s! PogChamp' % (duel_list[0], duel_list[1])
+                            sendmessage(victory_message)
+                        if coin == 1:
+                            defeat_message = '/me %s has defeated %s in a duel! PogChamp' % (duel_list[1], duel_list[0])
+                            sendmessage(defeat_message)
+                            sendmessage('Never lucky BabyRage')
+                        duel_list.popleft()
+                        duel_list.popleft()
+
+                    if message == '!duel':
+                        pass
+
+                    if message == '!clearduels' and username == 'jereck00':
+                        duel_list[:] = []
+                        sendmessage('clearing duel queue')
 
 #################################################################
                 for l in parts:
