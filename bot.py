@@ -156,6 +156,12 @@ while True:
                         duel_list[:] = []
                         sendmessage('clearing duel queue')
 
+                    if message == '!n8iscool':
+                        sendmessage('http://i.imgur.com/fcWhKyU.jpg')
+
+                    if message == '!nice' and username == 'leo_n_milk':
+                        sendmessage('https://38.media.tumblr.com/1f1ea822c3b32719c382d775c629713a/tumblr_mwzoseIvD01sedjuto1_500.gif')
+
 #################################################################
                 for l in parts:
                     if "End of /NAMES list" in l:
