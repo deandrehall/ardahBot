@@ -181,8 +181,8 @@ while True:
                                 anotherdog()
                         anotherdog()
                         
-                    if message == '!identicon':
-                        def generatememe(fill="XX", empty="  ", height=10, width=10, fillpercent=0.4):
+                    if message == '!meme_me':
+                        def generatememe(fill="XX", empty="__", height=8, width=8, fillpercent=0.4):
                             halfwidth = int(width/2)
                             painted = 0
                             maxPainted = height*halfwidth*fillpercent
