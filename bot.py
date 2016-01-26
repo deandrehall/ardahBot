@@ -30,14 +30,6 @@ def timeout(user, secs):
     timeout_message = "PRIVMSG #jereck00 :/timeout %s %s\r\n" % (user, secs)
     s.send(timeout_message)
 
-def tofile(text,username):
-    username = str(username)
-    text = str(text)
-    with open('test.txt', 'a') as textfile:
-        print 'writing to file'
-        textfile.write(username + ':' + text + '\r\n')
-        textfile.close()
-
 sendmessage('it that bot')
 
 while True:
@@ -69,9 +61,6 @@ while True:
                    
 ########################### Commands #############################
 
-                    if 'tmi.twitch.tv' not in message:
-                        tofile(message, username)
-
                     if message == "!meme":
                         sendmessage("EleGiggle")
                         
@@ -88,8 +77,7 @@ while True:
                         sendmessage("Kreygasm")
 
                     if message == "!sudoku":
-                        kick_message = ('kicking %s from chat') % (username)
-                        print(kick_message)
+                        print 'kicking %s from chat' % username
                         sendmessage("He will be missed...")
                         timeout(username, 15)
 
@@ -161,29 +149,25 @@ while True:
 
                     if message == '!nice' and username == 'leo_n_milk':
                         sendmessage('https://38.media.tumblr.com/1f1ea822c3b32719c382d775c629713a/tumblr_mwzoseIvD01sedjuto1_500.gif')
-                        
+
                     if message == '!hotdogs' and username == 'n8many':
-                        n8_hotdog_game_message = 'looks like n8 wants some hotdogs...' 
-                        sendmessage(n8_hotdog_game_message)
+                        sendmessage('looks like n8 wants some hotdogs...')
                         sendmessage('8=D')
                         def anotherdoodle():
-                            from time import sleep
-                            sleep(0.4)
+                            time.sleep(0.4)
                             doodleyes = random.randint(1,4)
                             if doodleyes == 1:
                                 sendmessage('no more doodle for n8 lmao')
                             else:
                                 sendmessage('8=D')
                                 anotherdoodle()
-                        anotherdoodle()    
-                        
+                        anotherdoodle()
+
                     if message == '!hotdogs' and username != 'n8many':
-                        hotdog_game_message = 'looks like %s is playing the hotdog game, how many dogs will they get?' % username
-                        sendmessage(hotdog_game_message)
+                        sendmessage('looks like %s is playing the hotdog game, how many dogs will they get?' % username)
                         sendmessage('=(~~~)=')
                         def anotherdog():
-                            from time import sleep
-                            sleep(0.4)
+                            time.sleep(0.4)
                             hotdogyes = random.randint(1,4)
                             if hotdogyes == 1:
                                 sendmessage('no more dogs')
