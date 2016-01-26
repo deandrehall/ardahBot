@@ -162,13 +162,28 @@ while True:
                     if message == '!nice' and username == 'leo_n_milk':
                         sendmessage('https://38.media.tumblr.com/1f1ea822c3b32719c382d775c629713a/tumblr_mwzoseIvD01sedjuto1_500.gif')
                         
-                    if message == '!hotdogs':
+                    if message == '!hotdogs' and username == 'n8many':
+                        n8_hotdog_game_message = 'looks like n8 wants some hotdogs...' 
+                        sendmessage(n8_hotdog_game_message)
+                        sendmessage('8=D')
+                        def anotherdoodle():
+                            from time import sleep
+                            sleep(0.4)
+                            doodleyes = random.randint(1,4)
+                            if doodleyes == 1:
+                                sendmessage('no more doodle for n8 lmao')
+                            else:
+                                sendmessage('8=D')
+                                anotherdoodle()
+                        anotherdoodle()    
+                        
+                    if message == '!hotdogs' and username != 'n8many':
                         hotdog_game_message = 'looks like %s is playing the hotdog game, how many dogs will they get?' % username
                         sendmessage(hotdog_game_message)
                         sendmessage('=(~~~)=')
                         def anotherdog():
                             from time import sleep
-                            sleep(0.25)
+                            sleep(0.4)
                             hotdogyes = random.randint(1,4)
                             if hotdogyes == 1:
                                 sendmessage('no more dogs')
