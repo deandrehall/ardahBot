@@ -38,7 +38,7 @@ def tofile(text,username):
         textfile.write(username + ':' + text + '\r\n')
         textfile.close()
 
-sendmessage('that me')
+sendmessage('it that bot')
 
 while True:
     readbuffer = readbuffer + s.recv(1024)
@@ -163,7 +163,8 @@ while True:
                         sendmessage('https://38.media.tumblr.com/1f1ea822c3b32719c382d775c629713a/tumblr_mwzoseIvD01sedjuto1_500.gif')
                         
                     if message == '!hotdogs':
-                        sendmessage('looks like %s is playing the hotdog game, how many dogs will they get?') % (username)
+                        hotdog_game_message = 'looks like %s is playing the hotdog game, how many dogs will they get?' % username
+                        sendmessage(hotdog_game_message)
                         sendmessage('=(~~~)=')
                         def anotherdog():
                             from time import sleep
