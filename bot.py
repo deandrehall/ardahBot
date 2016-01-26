@@ -161,6 +161,20 @@ while True:
 
                     if message == '!nice' and username == 'leo_n_milk':
                         sendmessage('https://38.media.tumblr.com/1f1ea822c3b32719c382d775c629713a/tumblr_mwzoseIvD01sedjuto1_500.gif')
+                        
+                    if message == '!hotdogs':
+                        sendmessage('looks like %s is playing the hotdog game, how many dogs will they get?') % (username)
+                        sendmessage('=(~~~)=')
+                        def anotherdog():
+                            from time import sleep
+                            sleep(0.25)
+                            hotdogyes = random.randint(1,4)
+                            if hotdogyes == 1:
+                                sendmessage('no more dogs')
+                            else:
+                                sendmessage('=(~~~)=')
+                                anotherdog()
+                        anotherdog()
 
 #################################################################
                 for l in parts:
