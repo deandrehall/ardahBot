@@ -191,6 +191,35 @@ while True:
                                 sendmessage('=(~~~)=')
                                 anotherdog()
                         anotherdog()
+                        
+                    if message == '!identicon':
+                        def generatememe(fill="XX", empty="  ", height=10, width=10, fillpercent=0.4):
+                            halfwidth = int(width/2)
+                            painted = 0
+                            maxPainted = height*halfwidth*fillpercent
+                            adjacent = [(-1,-1), (-1,0), (-1,1), (0,1), (0,-1), (1,-1), (1,0), (1,1)]                                                                                       
+                            meme = [[empty for w in range(halfwidth)] for h in range(height)]
+                            y, x = random.randint(0,height-1), random.randint(0,halfwidth-1)
+                            lst = [(y,x)]
+                            while (len(lst) != 0):                                                                         
+                                y, x = lst.pop()                                                                        
+                                if painted <= maxPainted:
+                                    meme[y][x] = fill
+                                    painted += 1                                                                  
+                                    random.shuffle(adjacent)
+                                    for posy, posx in adjacent:
+                                        tmpy, tmpx = y + posy, x + posx
+                                        if tmpx >= 0 and tmpx < halfwidth:
+                                            if tmpy >= 0 and tmpy < height:                                                     
+                                                if meme[tmpy][tmpx] is not fill:
+                                                    lst.append((tmpy,tmpx))                                                                     
+                            for h in range(height):
+                                half = ""
+                                for w in range(halfwidth):
+                                    half += meme[h][w]
+                                identicon=(half + half[::-1])
+                                sendmessage(identicon)
+                        generatememe()
 
 #################################################################
                 for l in parts:
