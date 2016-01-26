@@ -1,4 +1,4 @@
-import socket, string, random, twitch, time
+import socket, string, random, time
 from collections import deque
  
 # Set all the variables necessary to connect to Twitch IRC
@@ -80,6 +80,11 @@ while True:
                         print 'kicking %s from chat' % username
                         sendmessage("He will be missed...")
                         timeout(username, 15)
+
+                    if message == "!uptime":
+                        sendmessage('dre hasn\'t figured out how to implement this command yet lmao')
+                        time.sleep(.5)
+                        sendmessage('If you have the BetterTwitchTV extension you can type /uptime')
 
                     if '!duel' in message and len(duel_list) == 0:
                         duel_list.append(username)
