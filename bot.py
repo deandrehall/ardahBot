@@ -1,4 +1,4 @@
-import socket, string, random, time
+import socket, string, random, time, webbrowser
 from collections import deque
  
 # Set all the variables necessary to connect to Twitch IRC
@@ -21,6 +21,7 @@ s.send("JOIN #jereck00 \r\n")
 duel_list = deque([])
 defender = ''
 duel_check = False
+meme_list = deque([])
 
 def sendmessage(text):
 # Method for sending a message
@@ -67,7 +68,7 @@ while True:
                     if message == "!sliced":
                         sendmessage("**unsheathes katana**")
 
-                    if message == "!whoami":
+                    if message == "!whome":
                         sendmessage(username)
 
                     if message == "!corn":
@@ -209,6 +210,15 @@ while True:
                                 identicon=(half + half[::-1])
                                 sendmessage(identicon)
                         generatememe()
+
+                    if '!secretmeme' in message and username == ('sshinol' or 'Leo_n_Milk' or 'Jereck00' or 'honestlyiloveit'):
+                        meme_list.append(message[6:])
+                        memeurl = meme_list[0]
+                        webbrowser.open_new_tab(memeurl)
+                        del meme_list[:]
+                        
+                    
+                    
 
 #################################################################
                 for l in parts:
