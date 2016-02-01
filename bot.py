@@ -11,7 +11,7 @@ import sys
 from collections import deque
 
 # Set all the variables necessary to connect to Twitch IRC
-HOST = "irc.twitch.tv"
+HOST = "irc.twitch.tv" #irc.twitch.tv
 NICK = "ardahbot"
 CHAN = 'jereck00'
 PORT = 6667
@@ -24,16 +24,31 @@ CHANNEL_NAME = CHANNEL_NAME.lower()
 SLEEP_TIME = 120
 IRC_CHANNEL = "#" + CHANNEL_NAME
 
+HOST2 = "199.9.253.119"
+
 followsMap = {}
 modsMap = {}
 points = {}
 
 # Connecting to Twitch IRC by passing credentials and joining a certain channel
 s = socket.socket()
+s2 = socket.socket()
 s.connect((HOST, PORT))
+s2.connect((HOST2, PORT))
 s.send("PASS " + PASS + "\r\n")
 s.send("NICK " + NICK + "\r\n")
 s.send("JOIN #jereck00 \r\n")
+s.send("CAP REQ :twitch.tv/membership\r\n")
+s.send("CAP REQ :twitch.tv/commands\r\n")
+s.send("CAP REQ :twitch.tv/tags\r\n")
+
+s2.send("PASS " + PASS + "\r\n")
+s2.send("NICK " + NICK + "\r\n")
+s2.send("JOIN #_ardahbot_1454310601454\r\n")
+s2.send("CAP REQ :twitch.tv/membership\r\n")
+s2.send("CAP REQ :twitch.tv/commands\r\n")
+s2.send("CAP REQ :twitch.tv/tags\r\n")
+
 
 # garbage vars bc im garbage at python
 duel_list = deque([])
@@ -160,15 +175,19 @@ def sendmessage(text):
     # Method for sending a message
     s.send("PRIVMSG #jereck00 :" + text + "\r\n")
 
+
 def sendSecret(username):
-    s.send("PRIVMSG #jereck00 :/w" + username + "nice")
+    s2.send("PRIVMSG #ardahBot :.w " + username + " nice\r\n")
+
 
 def timeout(user, secs):
     secs = 15
     timeout_message = "PRIVMSG #jereck00 :/timeout %s %s\r\n" % (user, secs)
     s.send(timeout_message)
 
+
 sendmessage('it that bot')
+
 
 while True:
     readbuffer = readbuffer + s.recv(1024)
@@ -346,7 +365,7 @@ while True:
                             meme = [[empty for w in range(halfwidth)] for h in range(height)]
                             y, x = random.randint(0, height - 1), random.randint(0, halfwidth - 1)
                             lst = [(y, x)]
-                            while (len(lst) != 0):
+                            while len(lst) != 0:
                                 y, x = lst.pop()
                                 if painted <= maxPainted:
                                     meme[y][x] = fill
