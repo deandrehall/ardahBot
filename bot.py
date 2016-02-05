@@ -181,7 +181,6 @@ def sendSecret(username):
 
 
 def timeout(user, secs):
-    secs = 15
     timeout_message = "PRIVMSG #jereck00 :/timeout %s %s\r\n" % (user, secs)
     s.send(timeout_message)
 
@@ -290,7 +289,9 @@ while True:
                     if message == "!sudoku":
                         print 'kicking %s from chat' % username
                         sendmessage("He will be missed...")
-                        timeout(username, 15)
+                        timeout_message = "PRIVMSG #jereck00 :/timeout %s %s\r\n" % (username, 30)
+                        s.send(timeout_message)
+                        s2.send("PRIVMSG #ardahBot :.w " + username + " rip 2 u\r\n")
 
                     if message == "!uptime":
                         sendmessage('dre hasn\'t figured out how to implement this command yet lmao')
