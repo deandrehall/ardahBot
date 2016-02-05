@@ -185,6 +185,54 @@ def timeout(user, secs):
     timeout_message = "PRIVMSG #jereck00 :/timeout %s %s\r\n" % (user, secs)
     s.send(timeout_message)
 
+def generatememe(fill="XX", empty="__", height=8, width=8, fillpercent=0.4):
+    halfwidth = int(width / 2)
+    painted = 0
+    maxPainted = height * halfwidth * fillpercent
+    adjacent = [(-1, -1), (-1, 0), (-1, 1), (0, 1), (0, -1), (1, -1), (1, 0), (1, 1)]
+    meme = [[empty for w in range(halfwidth)] for h in range(height)]
+    y, x = random.randint(0, height - 1), random.randint(0, halfwidth - 1)
+    lst = [(y, x)]
+    while len(lst) != 0:
+        y, x = lst.pop()
+        if painted <= maxPainted:
+            meme[y][x] = fill
+            painted += 1
+            random.shuffle(adjacent)
+            for posy, posx in adjacent:
+                tmpy, tmpx = y + posy, x + posx
+                if tmpx >= 0 and tmpx < halfwidth:
+                    if tmpy >= 0 and tmpy < height:
+                        if meme[tmpy][tmpx] is not fill:
+                            lst.append((tmpy, tmpx))
+    for h in range(height):
+        half = ""
+        for w in range(halfwidth):
+            half += meme[h][w]
+        identicon = (half + half[::-1])
+        sendmessage(identicon)
+
+
+def anotherdog():
+    time.sleep(0.4)
+    hotdogyes = random.randint(1, 4)
+    if hotdogyes == 1:
+        sendmessage('no more dogs')
+    else:
+        sendmessage('=(~~~)=')
+        anotherdog()
+
+
+def anotherdoodle():
+    time.sleep(0.4)
+    doodleyes = random.randint(1, 4)
+    if doodleyes == 1:
+        sendmessage('no more doodle for n8 lmao')
+    else:
+        sendmessage('8=D')
+        anotherdoodle()
+
+
 
 sendmessage('it that bot')
 
@@ -325,66 +373,14 @@ while True:
                     if message == '!hotdogs' and username == 'n8many':
                         sendmessage('looks like n8 wants some hotdogs...')
                         sendmessage('8=D')
-
-
-                        def anotherdoodle():
-                            time.sleep(0.4)
-                            doodleyes = random.randint(1, 4)
-                            if doodleyes == 1:
-                                sendmessage('no more doodle for n8 lmao')
-                            else:
-                                sendmessage('8=D')
-                                anotherdoodle()
-
-
                         anotherdoodle()
 
                     if message == '!hotdogs' and username != 'n8many':
                         sendmessage('looks like %s is playing the hotdog game, how many dogs will they get?' % username)
                         sendmessage('=(~~~)=')
-
-
-                        def anotherdog():
-                            time.sleep(0.4)
-                            hotdogyes = random.randint(1, 4)
-                            if hotdogyes == 1:
-                                sendmessage('no more dogs')
-                            else:
-                                sendmessage('=(~~~)=')
-                                anotherdog()
-
-
                         anotherdog()
 
                     if message == '!meme_me':
-                        def generatememe(fill="XX", empty="__", height=8, width=8, fillpercent=0.4):
-                            halfwidth = int(width / 2)
-                            painted = 0
-                            maxPainted = height * halfwidth * fillpercent
-                            adjacent = [(-1, -1), (-1, 0), (-1, 1), (0, 1), (0, -1), (1, -1), (1, 0), (1, 1)]
-                            meme = [[empty for w in range(halfwidth)] for h in range(height)]
-                            y, x = random.randint(0, height - 1), random.randint(0, halfwidth - 1)
-                            lst = [(y, x)]
-                            while len(lst) != 0:
-                                y, x = lst.pop()
-                                if painted <= maxPainted:
-                                    meme[y][x] = fill
-                                    painted += 1
-                                    random.shuffle(adjacent)
-                                    for posy, posx in adjacent:
-                                        tmpy, tmpx = y + posy, x + posx
-                                        if tmpx >= 0 and tmpx < halfwidth:
-                                            if tmpy >= 0 and tmpy < height:
-                                                if meme[tmpy][tmpx] is not fill:
-                                                    lst.append((tmpy, tmpx))
-                            for h in range(height):
-                                half = ""
-                                for w in range(halfwidth):
-                                    half += meme[h][w]
-                                identicon = (half + half[::-1])
-                                sendmessage(identicon)
-
-
                         generatememe()
 
                     #################################################################
