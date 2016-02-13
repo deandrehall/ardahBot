@@ -13,13 +13,13 @@ from collections import deque
 # Set all the variables necessary to connect to Twitch IRC
 HOST = "irc.twitch.tv" #irc.twitch.tv
 NICK = "ardahbot"
-CHAN = 'jereck00'
+CHAN = 'jereck00' #Name of your channel
 PORT = 6667
 PASS = "oauth:3hfhwlewgv2ydwkhohs6udttriheuo"
 readbuffer = ""
 MODT = False
 
-CHANNEL_NAME = "jereck00"
+CHANNEL_NAME = CHAN
 CHANNEL_NAME = CHANNEL_NAME.lower()
 SLEEP_TIME = 120
 IRC_CHANNEL = "#" + CHANNEL_NAME
@@ -37,7 +37,7 @@ s.connect((HOST, PORT))
 s2.connect((HOST2, PORT))
 s.send("PASS " + PASS + "\r\n")
 s.send("NICK " + NICK + "\r\n")
-s.send("JOIN #jereck00 \r\n")
+s.send("JOIN #" + CHAN + "\r\n")
 s.send("CAP REQ :twitch.tv/membership\r\n")
 s.send("CAP REQ :twitch.tv/commands\r\n")
 s.send("CAP REQ :twitch.tv/tags\r\n")
@@ -55,125 +55,9 @@ duel_list = deque([])
 defender = ''
 duel_check = False
 
-if os.path.exists("points.txt"):
-    pass
-else:
-    pointsFile = open("points.txt", "w+")
-    pointsFile.close()
-pointsFile = open("points.txt", "r")
-for line in pointsFile:
-    line = line.strip()
-    line = line.split(':')
-    points[line[0]] = int(line[1])
-pointsFile.close()
-
-
-def getUser(line):
-    user = ""
-    if line[1] == "PRIVMSG":
-        user = line[0]
-        user = user.split("!")
-        user = user[0]
-        user = user[1:]
-    return user
-
-
-def getMessage(line):
-    line = line[3:]
-    line = ' '.join(line)
-    return line[1:].split(' ')
-
-
-def follows(user):
-    global CHANNEL_NAME
-    if user in followsMap:
-        return followsMap[user]
-    else:
-        try:
-            r = urllib2.urlopen("https://api.twitch.tv/kraken/users/" + user + "/follows/channels/" + CHANNEL_NAME + "")
-            followJson = json.loads(r.read())
-            if "error" in followJson:
-                followsMap[user] = False
-                return False
-            else:
-                followsMap[user] = True
-                return True
-        except:
-            return False
-
-
-def addPoints():
-    global CHANNEL_NAME
-    while True:
-        r = urllib2.urlopen('http://tmi.twitch.tv/group/user/' + CHANNEL_NAME + "/chatters")
-        chattersJson = json.loads(r.read())
-        for x in range(0, len(chattersJson["chatters"]["moderators"])):
-            modsMap[chattersJson["chatters"]["moderators"][x]] = True
-        for x in range(0, len(chattersJson["chatters"]["staff"])):
-            modsMap[chattersJson["chatters"]["staff"][x]] = True
-        for x in range(0, len(chattersJson["chatters"]["admins"])):
-            modsMap[chattersJson["chatters"]["admins"][x]] = True
-        for x in range(0, len(chattersJson["chatters"]["global_mods"])):
-            modsMap[chattersJson["chatters"]["global_mods"][x]] = True
-
-        for x in range(0, len(chattersJson["chatters"]["viewers"])):
-            # print "user: " + chattersJson["chatters"]["viewers"][x]
-            user = chattersJson["chatters"]["viewers"][x]
-            curPoints = 0
-            if user in points:
-                if follows(user) == True:
-                    points[user] = points[user] + 3
-                else:
-                    points[user] = points[user] + 1
-            else:
-                points[user] = 1
-                pass
-            pointsFile = open("points.txt", "r+")
-            for key in points:
-                pointsFile.write(key + ":" + str(points[key]) + "\n")
-            pointsFile.close()
-        time.sleep(SLEEP_TIME)
-
-
-def parseMessage(line):
-    try:
-        user = getUser(line)
-        msg = getMessage(line)
-        if user == "" or user == None or user == "jtv":
-            return
-        curPoints = 0
-        if user in points:
-            points[user] = points[user] + 1
-        else:
-            points[user] = 1
-        pointsFile = open("points.txt", "r+")
-        for key in points:
-            pointsFile.write(key + ":" + str(points[key]) + "\n")
-        pointsFile.close()
-        print "User: " + user
-        print "Message: " + ' '.join(msg)
-        message = ' '.join(msg)
-        msg = message.split(' ')
-        if (msg[0].lower() == "!points") and (len(msg) == 4) and (user in modsMap):
-            if msg[1].lower() == "give":
-                if msg[2] in points:
-                    points[msg[2]] = points[msg[2]] + int(msg[3])
-                else:
-                    points[msg[2]] = int(msg[3])
-        if (msg[0].lower() == "!points") and (len(msg) == 4) and (user in modsMap):
-            if msg[1].lower() == "take":
-                print "subtracting "
-                if msg[2] in points:
-                    points[msg[2]] = points[msg[2]] - int(msg[3])
-                else:
-                    points[msg[2]] = int(msg[3])
-    except:
-        print traceback.format_exc()
-
-
 def sendmessage(text):
     # Method for sending a message
-    s.send("PRIVMSG #jereck00 :" + text + "\r\n")
+    s.send("PRIVMSG #" + CHAN + " :" + text + "\r\n")
 
 
 def sendSecret(username):
@@ -181,7 +65,7 @@ def sendSecret(username):
 
 
 def timeout(user, secs):
-    timeout_message = "PRIVMSG #jereck00 :/timeout %s %s\r\n" % (user, secs)
+    timeout_message = "PRIVMSG #" + CHAN + ": /timeout %s %s\r\n" % (user, secs)
     s.send(timeout_message)
 
 def generatememe(fill="XX", empty="__", height=8, width=8, fillpercent=0.4):
@@ -231,10 +115,7 @@ def anotherdoodle():
         sendmessage('8=D')
         anotherdoodle()
 
-
-
 sendmessage('it that bot')
-
 
 while True:
     readbuffer = readbuffer + s.recv(1024)
@@ -265,8 +146,6 @@ while True:
 
                     ########################### Commands #############################
 
-                    t = threading.Thread(target=addPoints).start()
-
                     if message == "!secret":
                         sendSecret(username)
 
@@ -289,7 +168,7 @@ while True:
                     if message == "!sudoku":
                         print 'kicking %s from chat' % username
                         sendmessage("He will be missed...")
-                        timeout_message = "PRIVMSG #jereck00 :/timeout %s %s\r\n" % (username, 30)
+                        timeout_message = "PRIVMSG #" + CHAN + " :/timeout %s %s\r\n" % (username, 30)
                         s.send(timeout_message)
                         s2.send("PRIVMSG #ardahBot :.w " + username + " rip 2 u\r\n")
 
