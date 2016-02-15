@@ -55,6 +55,7 @@ duel_list = deque([])
 defender = ''
 duel_check = False
 
+
 def sendmessage(text):
     # Method for sending a message
     s.send("PRIVMSG #" + CHAN + " :" + text + "\r\n")
@@ -67,6 +68,7 @@ def sendSecret(username):
 def timeout(user, secs):
     timeout_message = "PRIVMSG #" + CHAN + ": /timeout %s %s\r\n" % (user, secs)
     s.send(timeout_message)
+
 
 def generatememe(fill="XX", empty="__", height=8, width=8, fillpercent=0.4):
     halfwidth = int(width / 2)
@@ -249,11 +251,11 @@ while True:
                     s.send("PONG %s\r\n" % line[1])
             else:
                 parts = string.split(line, ":")  # Splits the given string so we can work with it better
-            if "QUIT" not in parts[1] and "JOIN" not in parts[1] and "PART" not in parts[1]:
-                try:
-                    message = parts[2][:len(parts[2]) - 1]  # Sets the message variable to the actual message sent
-                except:
-                    message = ""
+                if "QUIT" not in parts[1] and "JOIN" not in parts[1] and "PART" not in parts[1]:
+                    try:
+                        message = parts[2][:len(parts[2]) - 1]  # Sets the message variable to the actual message sent
+                    except:
+                        message = ""
                     usernamesplit = string.split(parts[1], "!")
                     username = usernamesplit[0]  # Sets the username variable to the actual username
 
