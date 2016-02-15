@@ -115,6 +115,125 @@ def anotherdoodle():
         sendmessage('8=D')
         anotherdoodle()
 
+
+def commands():
+    if message == "!secret":
+        sendSecret(username)
+
+    if message == "!meme":
+        sendmessage("EleGiggle")
+
+    if message == "!sliced":
+        sendmessage("**unsheathes katana**")
+
+    if message == "!whoami":
+       sendmessage(username)
+
+    if message == "!corn":
+       sendmessage(
+       "https://33.media.tumblr.com/b07644c8da2e4b15c6119d37078d2e16/tumblr_n6kja1gWkE1qln00mo2_400.gif")
+
+    if message == "!hotdog":
+       sendmessage("Kreygasm")
+
+    if message == "!sudoku":
+       print 'kicking %s from chat' % username
+       sendmessage("He will be missed...")
+       timeout_message = "PRIVMSG #" + CHAN + " :/timeout %s %s\r\n" % (username, 30)
+       s.send(timeout_message)
+       s2.send("PRIVMSG #ardahBot :.w " + username + " rip 2 u\r\n")
+
+    if message == "!uptime":
+       sendmessage('dre hasn\'t figured out how to implement this command yet lmao')
+       time.sleep(.5)
+       sendmessage('If you have the BetterTwitchTV extension you can type /uptime')
+
+    if '!duel' in message and len(duel_list) == 0:
+       duel_list.append(username)
+       duel_list.append(message[6:])
+       duel_message = '/me %s has challenged %s to a duel PogChamp type !accept to confirm duel' % (
+       duel_list[0], duel_list[1])
+       sendmessage(duel_message)
+
+    if len(duel_list) == 2 and username == duel_list[1] and message == '!accept':
+       coin = random.randint(0, 1)
+       if coin == 0:
+           victory_message = '/me %s has won the duel against %s! PogChamp' % (
+               duel_list[0], duel_list[1])
+           sendmessage(victory_message)
+       if coin == 1:
+           defeat_message = '/me %s has defeated %s in a duel! PogChamp' % (duel_list[1], duel_list[0])
+           sendmessage(defeat_message)
+           sendmessage('Never lucky BabyRage')
+           duel_list.popleft()
+           duel_list.popleft()
+           # TODO take this len() check out after implementing better queue system
+    if message == '!cancelduel' and username == duel_list[0] and len(duel_list) == 2:
+        cancel_duel_message = '%s has canceled the duel' % (duel_list[0])
+        sendmessage(cancel_duel_message)
+        duel_list.popleft()
+        duel_list.popleft()
+
+    if '!duel' in message and username not in duel_list:
+        if message[6:] == duel_list[0]:
+            duel_in_progress = '%s currently has a duel pending' % (duel_list[0])
+            suggest_cancel = '%s can cancel the pending duel by typing !cancelduel' % (duel_list[0])
+            sendmessage(duel_in_progress)
+            sendmessage(suggest_cancel)
+        if message[6:] == duel_list[1]:
+            duel_in_progress = '%s currently has a duel pending' % (duel_list[1])
+            suggest_cancel = '%s can cancel the pending duel by typing !cancelduel' % (duel_list[1])
+            sendmessage(duel_in_progress)
+            sendmessage(suggest_cancel)
+
+    if message == '!decline' and len(duel_list) == 2 and username == duel_list[1]:
+        decline_message = '%s has declined the duel with %s' % (duel_list[1], duel_list[0])
+        sendmessage(decline_message)
+        duel_list.popleft()
+        duel_list.popleft()
+
+    if '!duel' in message and len(duel_list) == 2 and username not in duel_list:
+        sendmessage('The duel list is currently full. Please wait until the pending duel has completed')
+
+    if '!duel' in message and message[6:] == 'ardahbot':
+        time.sleep((random.randint(1, 3)))
+        sendmessage('!accept')
+        coin = random.randint(0, 1)
+        if coin == 0:
+            victory_message = '/me %s has won the duel against %s! PogChamp' % (
+                duel_list[0], duel_list[1])
+            sendmessage(victory_message)
+        if coin == 1:
+            defeat_message = '/me %s has defeated %s in a duel! PogChamp' % (duel_list[1], duel_list[0])
+            sendmessage(defeat_message)
+            sendmessage('Never lucky BabyRage')
+        duel_list.popleft()
+        duel_list.popleft()
+
+    if message == '!clearduels' and username == 'jereck00':
+        duel_list[:] = []
+        sendmessage('clearing duel queue')
+
+    if message == '!n8iscool':
+        sendmessage('http://i.imgur.com/fcWhKyU.jpg')
+
+    if message == '!nice' and username == 'leo_n_milk':
+        sendmessage(
+        'https://38.media.tumblr.com/1f1ea822c3b32719c382d775c629713a/tumblr_mwzoseIvD01sedjuto1_500.gif')
+
+    if message == '!hotdogs' and username == 'n8many':
+        sendmessage('looks like n8 wants some hotdogs...')
+        sendmessage('8=D')
+        anotherdoodle()
+
+    if message == '!hotdogs' and username != 'n8many':
+        sendmessage('looks like %s is playing the hotdog game, how many dogs will they get?' % username)
+        sendmessage('=(~~~)=')
+        anotherdog()
+
+    if message == '!meme_me':
+        generatememe()
+
 sendmessage('it that bot')
 
 while True:
@@ -146,122 +265,7 @@ while True:
 
                     ########################### Commands #############################
 
-                    if message == "!secret":
-                        sendSecret(username)
-
-                    if message == "!meme":
-                        sendmessage("EleGiggle")
-
-                    if message == "!sliced":
-                        sendmessage("**unsheathes katana**")
-
-                    if message == "!whoami":
-                        sendmessage(username)
-
-                    if message == "!corn":
-                        sendmessage(
-                            "https://33.media.tumblr.com/b07644c8da2e4b15c6119d37078d2e16/tumblr_n6kja1gWkE1qln00mo2_400.gif")
-
-                    if message == "!hotdog":
-                        sendmessage("Kreygasm")
-
-                    if message == "!sudoku":
-                        print 'kicking %s from chat' % username
-                        sendmessage("He will be missed...")
-                        timeout_message = "PRIVMSG #" + CHAN + " :/timeout %s %s\r\n" % (username, 30)
-                        s.send(timeout_message)
-                        s2.send("PRIVMSG #ardahBot :.w " + username + " rip 2 u\r\n")
-
-                    if message == "!uptime":
-                        sendmessage('dre hasn\'t figured out how to implement this command yet lmao')
-                        time.sleep(.5)
-                        sendmessage('If you have the BetterTwitchTV extension you can type /uptime')
-
-                    if '!duel' in message and len(duel_list) == 0:
-                        duel_list.append(username)
-                        duel_list.append(message[6:])
-                        duel_message = '/me %s has challenged %s to a duel PogChamp type !accept to confirm duel' % (
-                            duel_list[0], duel_list[1])
-                        sendmessage(duel_message)
-
-                    if len(duel_list) == 2 and username == duel_list[1] and message == '!accept':
-                        coin = random.randint(0, 1)
-                        if coin == 0:
-                            victory_message = '/me %s has won the duel against %s! PogChamp' % (
-                                duel_list[0], duel_list[1])
-                            sendmessage(victory_message)
-                        if coin == 1:
-                            defeat_message = '/me %s has defeated %s in a duel! PogChamp' % (duel_list[1], duel_list[0])
-                            sendmessage(defeat_message)
-                            sendmessage('Never lucky BabyRage')
-                        duel_list.popleft()
-                        duel_list.popleft()
-                        # TODO take this len() check out after implementing better queue system
-                    if message == '!cancelduel' and username == duel_list[0] and len(duel_list) == 2:
-                        cancel_duel_message = '%s has canceled the duel' % (duel_list[0])
-                        sendmessage(cancel_duel_message)
-                        duel_list.popleft()
-                        duel_list.popleft()
-
-                    if '!duel' in message and username not in duel_list:
-                        if message[6:] == duel_list[0]:
-                            duel_in_progress = '%s currently has a duel pending' % (duel_list[0])
-                            suggest_cancel = '%s can cancel the pending duel by typing !cancelduel' % (duel_list[0])
-                            sendmessage(duel_in_progress)
-                            sendmessage(suggest_cancel)
-                        if message[6:] == duel_list[1]:
-                            duel_in_progress = '%s currently has a duel pending' % (duel_list[1])
-                            suggest_cancel = '%s can cancel the pending duel by typing !cancelduel' % (duel_list[1])
-                            sendmessage(duel_in_progress)
-                            sendmessage(suggest_cancel)
-
-                    if message == '!decline' and len(duel_list) == 2 and username == duel_list[1]:
-                        decline_message = '%s has declined the duel with %s' % (duel_list[1], duel_list[0])
-                        sendmessage(decline_message)
-                        duel_list.popleft()
-                        duel_list.popleft()
-
-                    if '!duel' in message and len(duel_list) == 2 and username not in duel_list:
-                        sendmessage('The duel list is currently full. Please wait until the pending duel has completed')
-
-                    if '!duel' in message and message[6:] == 'ardahbot':
-                        time.sleep((random.randint(1, 3)))
-                        sendmessage('!accept')
-                        coin = random.randint(0, 1)
-                        if coin == 0:
-                            victory_message = '/me %s has won the duel against %s! PogChamp' % (
-                                duel_list[0], duel_list[1])
-                            sendmessage(victory_message)
-                        if coin == 1:
-                            defeat_message = '/me %s has defeated %s in a duel! PogChamp' % (duel_list[1], duel_list[0])
-                            sendmessage(defeat_message)
-                            sendmessage('Never lucky BabyRage')
-                        duel_list.popleft()
-                        duel_list.popleft()
-
-                    if message == '!clearduels' and username == 'jereck00':
-                        duel_list[:] = []
-                        sendmessage('clearing duel queue')
-
-                    if message == '!n8iscool':
-                        sendmessage('http://i.imgur.com/fcWhKyU.jpg')
-
-                    if message == '!nice' and username == 'leo_n_milk':
-                        sendmessage(
-                            'https://38.media.tumblr.com/1f1ea822c3b32719c382d775c629713a/tumblr_mwzoseIvD01sedjuto1_500.gif')
-
-                    if message == '!hotdogs' and username == 'n8many':
-                        sendmessage('looks like n8 wants some hotdogs...')
-                        sendmessage('8=D')
-                        anotherdoodle()
-
-                    if message == '!hotdogs' and username != 'n8many':
-                        sendmessage('looks like %s is playing the hotdog game, how many dogs will they get?' % username)
-                        sendmessage('=(~~~)=')
-                        anotherdog()
-
-                    if message == '!meme_me':
-                        generatememe()
+                    commands()
 
                     #################################################################
                 for l in parts:
