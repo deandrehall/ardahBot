@@ -7,7 +7,6 @@ import json
 import threading
 import os
 import traceback
-import sys
 from collections import deque
 
 # Set all the variables necessary to connect to Twitch IRC
@@ -26,10 +25,6 @@ IRC_CHANNEL = "#" + CHANNEL_NAME
 
 HOST2 = "199.9.253.119"
 
-followsMap = {}
-modsMap = {}
-points = {}
-
 # Connecting to Twitch IRC by passing credentials and joining a certain channel
 s = socket.socket()
 s2 = socket.socket()
@@ -41,7 +36,7 @@ s.send("JOIN #" + CHAN + "\r\n")
 s.send("CAP REQ :twitch.tv/membership\r\n")
 s.send("CAP REQ :twitch.tv/commands\r\n")
 s.send("CAP REQ :twitch.tv/tags\r\n")
-
+# connecting to the bot's chat group so that whispers work
 s2.send("PASS " + PASS + "\r\n")
 s2.send("NICK " + NICK + "\r\n")
 s2.send("JOIN #_ardahbot_1454310601454\r\n")
@@ -54,6 +49,10 @@ s2.send("CAP REQ :twitch.tv/tags\r\n")
 duel_list = deque([])
 defender = ''
 duel_check = False
+viewerDict = {}
+followsDict = {}
+modsDict = {}
+points = {}
 
 
 def sendmessage(text):
@@ -70,7 +69,12 @@ def timeout(user, secs):
     s.send(timeout_message)
 
 
-def generatememe(fill="XX", empty="__", height=8, width=8, fillpercent=0.4):
+def generatememe():
+    fill="XX"
+    empty="__"
+    height=8
+    width=8
+    fillpercent=0.4
     halfwidth = int(width / 2)
     painted = 0
     maxPainted = height * halfwidth * fillpercent
@@ -96,6 +100,35 @@ def generatememe(fill="XX", empty="__", height=8, width=8, fillpercent=0.4):
             half += meme[h][w]
         identicon = (half + half[::-1])
         sendmessage(identicon)
+
+
+def follows(username):
+    r = urllib2.urlopen("https://api.twitch.tv/kraken/channels/"+CHAN+"/follows")
+    followJson = json.loads(r)
+    print followJson
+    if 'error' in followJson:
+        followsDict[username] = False
+        print followsDict[username]
+        return False
+    else:
+        followsDict[username] = True
+        print followsDict[username]
+        return True
+
+
+def chatting(username):
+    r = urllib2.urlopen("http://tmi.twitch.tv/group/user/" + CHAN + "/chatters")
+    viewingJson = json.loads(r.read())
+    print viewingJson
+    if username in viewingJson["chatters"]["moderators"]:
+        viewerDict[username] = True
+        print(viewerDict[username])
+        return True
+    else:
+        viewerDict[username] = False
+        print(viewerDict[username])
+        return False
+
 
 
 def anotherdog():
@@ -233,8 +266,24 @@ def commands():
         sendmessage('=(~~~)=')
         anotherdog()
 
-    if message == '!meme_me':
+    if message == '!draw':
         generatememe()
+
+    if '!following' in message:
+        name = message[10:]
+        if follows(name):
+            sendmessage("%s is following the channel!" % name)
+        else:
+            sendmessage("%s is not following the channel DansGame" % name)
+
+    if '!chatting' in message:
+        name = message[9:]
+        if chatting(name):
+            sendmessage("%s is with us" % name)
+        else:
+            sendmessage("%s is not with us" % name)
+
+
 
 
 sendmessage('it that bot')
@@ -258,7 +307,7 @@ while True:
                         message = ""
                     usernamesplit = string.split(parts[1], "!")
                     username = usernamesplit[0]  # Sets the username variable to the actual username
-
+        print username + ": " + message
         commands()  # checks if a command has been called
 
     except:
