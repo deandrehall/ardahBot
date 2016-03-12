@@ -53,6 +53,7 @@ viewerDict = {}
 followsDict = {}
 modsDict = {}
 points = {}
+memeteam = ["jereck00", "shin0l", "leo_n_milk"]
 
 
 def sendmessage(text):
@@ -101,34 +102,57 @@ def generatememe():
         identicon = (half + half[::-1])
         sendmessage(identicon)
 
-
+#TODO: change the functionallity follows and chatting fucntions to populate dictionary, then command that calls these functions will check dict, if value not in dict, then call function
 def follows(username):
     r = urllib2.urlopen("https://api.twitch.tv/kraken/channels/"+CHAN+"/follows")
-    followJson = json.loads(r)
-    print followJson
-    if 'error' in followJson:
-        followsDict[username] = False
-        print followsDict[username]
-        return False
-    else:
-        followsDict[username] = True
-        print followsDict[username]
-        return True
+    followJson = json.loads(r.read())
+    counter = 0
+
+    for item in followJson["follows"][counter]["user"]["name"]:
+        item = followJson["follows"][counter]["user"]["name"]
+        if username in item:
+            viewerDict[item] = True
+        else:
+            viewerDict[item] = False
+        counter += 1
+
+    counter = 0
+    return viewerDict[username]
 
 
 def chatting(username):
     r = urllib2.urlopen("http://tmi.twitch.tv/group/user/" + CHAN + "/chatters")
     viewingJson = json.loads(r.read())
-    print viewingJson
-    if username in viewingJson["chatters"]["moderators"]:
-        viewerDict[username] = True
-        print(viewerDict[username])
-        return True
-    else:
-        viewerDict[username] = False
-        print(viewerDict[username])
-        return False
 
+    for item in viewingJson["chatters"]["moderators"]:
+        print item
+        if username in item:
+            viewerDict[item] = True
+        else:
+            viewerDict[item] = False
+    for item in viewingJson["chatters"]["staff"]:
+        if username in item:
+            viewerDict[item] = True
+        else:
+            viewerDict[item] = False
+    for item in viewingJson["chatters"]["admins"]:
+        if username in item:
+            viewerDict[item] = True
+        else:
+            viewerDict[item] = False
+    for item in viewingJson["chatters"]["global_mods"]:
+        if username in item:
+            viewerDict[item] = True
+        else:
+            viewerDict[item] = False
+    for item in viewingJson["chatters"]["viewers"]:
+        print item
+        if username in item:
+            viewerDict[item] = True
+        else:
+            viewerDict[item] = False
+
+    return viewerDict[username]
 
 
 def anotherdog():
@@ -252,7 +276,7 @@ def commands():
     if message == '!n8iscool':
         sendmessage('http://i.imgur.com/fcWhKyU.jpg')
 
-    if message == '!nice' and username == 'leo_n_milk':
+    if message == '!nice' and username in memeteam:
         sendmessage(
         'https://38.media.tumblr.com/1f1ea822c3b32719c382d775c629713a/tumblr_mwzoseIvD01sedjuto1_500.gif')
 
@@ -270,14 +294,14 @@ def commands():
         generatememe()
 
     if '!following' in message:
-        name = message[10:]
+        name = message[11:]
         if follows(name):
             sendmessage("%s is following the channel!" % name)
         else:
             sendmessage("%s is not following the channel DansGame" % name)
 
     if '!chatting' in message:
-        name = message[9:]
+        name = message[10:]
         if chatting(name):
             sendmessage("%s is with us" % name)
         else:
