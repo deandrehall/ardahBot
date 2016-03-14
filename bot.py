@@ -7,6 +7,7 @@ import json
 import threading
 import os
 import traceback
+import sopel
 from collections import deque
 
 # Set all the variables necessary to connect to Twitch IRC
@@ -312,10 +313,11 @@ def commands():
     if message == '!github':
         sendmessage('https://github.com/deandrehall/ardahBot')
 
+    if message == '!test':
+        print traceback.format_exc()
 
 
-
-sendmessage('it that boy')
+sendmessage('it that bot')
 
 
 while True:
