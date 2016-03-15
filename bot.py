@@ -7,13 +7,13 @@ import json
 import threading
 import os
 import traceback
-import sopel
+import re
 from collections import deque
 
 # Set all the variables necessary to connect to Twitch IRC
 HOST = "irc.twitch.tv" #irc.twitch.tv
 NICK = "ardahbot"
-CHAN = 'jereck00' #Name of your channel
+CHAN = 'nl_kripp' #Name of your channel
 PORT = 6667
 PASS = "oauth:3hfhwlewgv2ydwkhohs6udttriheuo"
 readbuffer = ""
@@ -130,6 +130,11 @@ def follows(username):
             return False
 
 
+def numChatters():
+    r = urllib2.urlopen("http://tmi.twitch.tv/group/user/" + CHAN + "/chatters")
+    viewingJson = json.loads(r.read())
+    return viewingJson["chatter_count"]
+
 def chatting(username):
 
     viewerList = []
@@ -176,6 +181,8 @@ def anotherdoodle():
     else:
         sendmessage('8=D')
         anotherdoodle()
+
+
 
 
 def commands():
@@ -313,33 +320,43 @@ def commands():
     if message == '!github':
         sendmessage('https://github.com/deandrehall/ardahBot')
 
-    if message == '!test':
-        print traceback.format_exc()
+    if message == '!countviewers':
+        numCurrentChatters = str(numChatters())
+        sendmessage("There are currently %s registered users in the chat" % numCurrentChatters)
 
 
 sendmessage('it that bot')
 
 
 while True:
-    try:
-        readbuffer = readbuffer+s.recv(1024)
-        temp = string.split(readbuffer, "\n")
-        readbuffer = temp.pop()
+    readbuffer = readbuffer + s.recv(1024)
+    temp = string.split(readbuffer, "\n")
+    readbuffer = temp.pop()
 
-        for line in temp:
-            if line[0] == "PING":
-                    s.send("PONG %s\r\n" % line[1])
-            else:
-                parts = string.split(line, ":")  # Splits the given string so we can work with it better
-                if "QUIT" not in parts[1] and "JOIN" not in parts[1] and "PART" not in parts[1]:
-                    try:
-                        message = parts[2][:len(parts[2]) - 1]  # Sets the message variable to the actual message sent
-                    except:
-                        message = ""
-                    usernamesplit = string.split(parts[1], "!")
-                    username = usernamesplit[0]  # Sets the username variable to the actual username
-        print username + ": " + message
-        commands()  # checks if a command has been called
+    for line in temp:
+        # Checks whether the message is PING because its a method of Twitch to check if you're afk
+        if (line[0] == "PING"):
+            s.send("PONG %s\r\n" % line[1])
+        else:
+            # Splits the given string so we can work with it better
+            parts = string.split(line, ":")
 
-    except:
-        print traceback.format_exc()
+            if "QUIT" not in parts[1] and "JOIN" not in parts[1] and "PART" not in parts[1]:
+                try:
+                    # Sets the message variable to the actual message sent
+                    message = parts[2][:len(parts[2]) - 1]
+                except:
+                    message = ""
+                # Sets the username variable to the actual username
+                usernamesplit = string.split(parts[1], "!")
+                username = usernamesplit[0]
+
+                # Only works after twitch is done announcing stuff (MODT = Message of the day)
+                if MODT:
+                    print username + ": " + message
+
+                    commands()
+
+                for l in parts:
+                    if "End of /NAMES list" in l:
+                        MODT = True
