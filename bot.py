@@ -11,9 +11,9 @@ import re
 from collections import deque
 
 # Set all the variables necessary to connect to Twitch IRC
-HOST = "irc.twitch.tv" #irc.twitch.tv
+HOST = "irc.twitch.tv"  # irc.twitch.tv
 NICK = "ardahbot"
-CHAN = 'nl_kripp' #Name of your channel
+CHAN = 'shin0l'  # Name of your channel
 PORT = 6667
 PASS = "oauth:3hfhwlewgv2ydwkhohs6udttriheuo"
 readbuffer = ""
@@ -45,7 +45,6 @@ s2.send("CAP REQ :twitch.tv/membership\r\n")
 s2.send("CAP REQ :twitch.tv/commands\r\n")
 s2.send("CAP REQ :twitch.tv/tags\r\n")
 
-
 # garbage vars bc im garbage at python
 duel_list = deque([])
 defender = ''
@@ -71,11 +70,11 @@ def timeout(user, secs):
 
 
 def generatememe():
-    fill="XX"
-    empty="__"
-    height=8
-    width=8
-    fillpercent=0.4
+    fill = "XX"
+    empty = "__"
+    height = 8
+    width = 8
+    fillpercent = 0.4
     halfwidth = int(width / 2)
     painted = 0
     maxPainted = height * halfwidth * fillpercent
@@ -102,19 +101,18 @@ def generatememe():
         identicon = (half + half[::-1])
         sendmessage(identicon)
 
-def follows(username):
 
+def follows(username):
     followsList = []
 
     if username in followsDict:
         return followsDict[username]
 
     else:
-        r = urllib2.urlopen("https://api.twitch.tv/kraken/channels/"+CHAN+"/follows")
+        r = urllib2.urlopen("https://api.twitch.tv/kraken/channels/" + CHAN + "/follows")
         followJson = json.loads(r.read())
-        counter = 0
 
-        for item in followJson["follows"][counter]["user"]["name"]:
+        for counter in range(0, len(followJson["follows"])):
             item = str(followJson["follows"][counter]["user"]["name"])
             followsList.append(item)
 
@@ -122,7 +120,6 @@ def follows(username):
                 followsDict[item] = True
             else:
                 followsDict[item] = False
-            counter += 1
 
         if username in followsList:
             return followsDict[username]
@@ -135,8 +132,8 @@ def numChatters():
     viewingJson = json.loads(r.read())
     return viewingJson["chatter_count"]
 
-def chatting(username):
 
+def chatting(username):
     viewerList = []
 
     r = urllib2.urlopen("http://tmi.twitch.tv/group/user/" + CHAN + "/chatters")
@@ -183,8 +180,6 @@ def anotherdoodle():
         anotherdoodle()
 
 
-
-
 def commands():
     if message == "!secret":
         sendSecret(username)
@@ -196,47 +191,47 @@ def commands():
         sendmessage("**unsheathes katana**")
 
     if message == "!whoami":
-       sendmessage(username)
+        sendmessage(username)
 
     if message == "!corn":
-       sendmessage(
-       "https://33.media.tumblr.com/b07644c8da2e4b15c6119d37078d2e16/tumblr_n6kja1gWkE1qln00mo2_400.gif")
+        sendmessage(
+            "https://33.media.tumblr.com/b07644c8da2e4b15c6119d37078d2e16/tumblr_n6kja1gWkE1qln00mo2_400.gif")
 
     if message == "!hotdog":
-       sendmessage("Kreygasm")
+        sendmessage("Kreygasm")
 
     if message == "!sudoku":
-       print 'kicking %s from chat' % username
-       sendmessage("He will be missed...")
-       timeout_message = "PRIVMSG #" + CHAN + " :/timeout %s %s\r\n" % (username, 30)
-       s.send(timeout_message)
-       s2.send("PRIVMSG #ardahBot :.w " + username + " rip 2 u\r\n")
+        print 'kicking %s from chat' % username
+        sendmessage("He will be missed...")
+        timeout_message = "PRIVMSG #" + CHAN + " :/timeout %s %s\r\n" % (username, 30)
+        s.send(timeout_message)
+        s2.send("PRIVMSG #ardahBot :.w " + username + " rip 2 u\r\n")
 
     if message == "!uptime":
-       sendmessage('dre hasn\'t figured out how to implement this command yet lmao')
-       time.sleep(.5)
-       sendmessage('If you have the BetterTwitchTV extension you can type /uptime')
+        sendmessage('dre hasn\'t figured out how to implement this command yet lmao')
+        time.sleep(.5)
+        sendmessage('If you have the BetterTwitchTV extension you can type /uptime')
 
     if '!duel' in message and len(duel_list) == 0:
-       duel_list.append(username)
-       duel_list.append(message[6:])
-       duel_message = '/me %s has challenged %s to a duel PogChamp type !accept to confirm duel' % (
-       duel_list[0], duel_list[1])
-       sendmessage(duel_message)
+        duel_list.append(username)
+        duel_list.append(message[6:])
+        duel_message = '/me %s has challenged %s to a duel PogChamp type !accept to confirm duel' % (
+            duel_list[0], duel_list[1])
+        sendmessage(duel_message)
 
     if len(duel_list) == 2 and username == duel_list[1] and message == '!accept':
-       coin = random.randint(0, 1)
-       if coin == 0:
-           victory_message = '/me %s has won the duel against %s! PogChamp' % (
-               duel_list[0], duel_list[1])
-           sendmessage(victory_message)
-       if coin == 1:
-           defeat_message = '/me %s has defeated %s in a duel! PogChamp' % (duel_list[1], duel_list[0])
-           sendmessage(defeat_message)
-           sendmessage('Never lucky BabyRage')
-           duel_list.popleft()
-           duel_list.popleft()
-           # TODO take this len() check out after implementing better queue system
+        coin = random.randint(0, 1)
+        if coin == 0:
+            victory_message = '/me %s has won the duel against %s! PogChamp' % (
+                duel_list[0], duel_list[1])
+            sendmessage(victory_message)
+        if coin == 1:
+            defeat_message = '/me %s has defeated %s in a duel! PogChamp' % (duel_list[1], duel_list[0])
+            sendmessage(defeat_message)
+            sendmessage('Never lucky BabyRage')
+            duel_list.popleft()
+            duel_list.popleft()
+
     if message == '!cancelduel' and username == duel_list[0] and len(duel_list) == 2:
         cancel_duel_message = '%s has canceled the duel' % (duel_list[0])
         sendmessage(cancel_duel_message)
@@ -288,7 +283,7 @@ def commands():
 
     if message == '!nice' and username in memeteam:
         sendmessage(
-        'https://38.media.tumblr.com/1f1ea822c3b32719c382d775c629713a/tumblr_mwzoseIvD01sedjuto1_500.gif')
+            'https://38.media.tumblr.com/1f1ea822c3b32719c382d775c629713a/tumblr_mwzoseIvD01sedjuto1_500.gif')
 
     if message == '!hotdogs' and username == 'n8many':
         sendmessage('looks like n8 wants some hotdogs...')
@@ -326,7 +321,6 @@ def commands():
 
 
 sendmessage('it that bot')
-
 
 while True:
     readbuffer = readbuffer + s.recv(1024)
