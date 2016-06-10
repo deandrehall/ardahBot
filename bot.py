@@ -355,4 +355,3 @@ while True:
                     if "End of /NAMES list" in l:
                         MODT = True
 
-            print("ok")
