@@ -2,7 +2,7 @@ import socket
 import string
 import random
 import time
-import urllib2
+#import urllib2
 import json
 import threading
 import os
@@ -13,7 +13,7 @@ from collections import deque
 # Set all the variables necessary to connect to Twitch IRC
 HOST = "irc.twitch.tv"  # irc.twitch.tv
 NICK = "ardahbot"
-CHAN = 'shin0l'  # Name of your channel
+CHAN = 'jereck00'  # Name of your channel
 PORT = 6667
 PASS = "oauth:3hfhwlewgv2ydwkhohs6udttriheuo"
 readbuffer = ""
@@ -31,19 +31,19 @@ s = socket.socket()
 s2 = socket.socket()
 s.connect((HOST, PORT))
 s2.connect((HOST2, PORT))
-s.send("PASS " + PASS + "\r\n")
-s.send("NICK " + NICK + "\r\n")
-s.send("JOIN #" + CHAN + "\r\n")
-s.send("CAP REQ :twitch.tv/membership\r\n")
-s.send("CAP REQ :twitch.tv/commands\r\n")
-s.send("CAP REQ :twitch.tv/tags\r\n")
+s.send(bytes("PASS %s\r\n" % PASS, "UTF-8"))
+s.send(bytes("NICK %s\r\n" % NICK, "UTF-8"))
+s.send(bytes("JOIN #%s\r\n" % CHAN, "UTF-8"))
+s.send(bytes("CAP REQ :twitch.tv/membership\r\n", "UTF-8"))
+s.send(bytes("CAP REQ :twitch.tv/commands\r\n", "UTF-8"))
+s.send(bytes("CAP REQ :twitch.tv/tags\r\n", "UTF-8"))
 # connecting to the bot's chat group so that whispers work
-s2.send("PASS " + PASS + "\r\n")
-s2.send("NICK " + NICK + "\r\n")
-s2.send("JOIN #_ardahbot_1454310601454\r\n")
-s2.send("CAP REQ :twitch.tv/membership\r\n")
-s2.send("CAP REQ :twitch.tv/commands\r\n")
-s2.send("CAP REQ :twitch.tv/tags\r\n")
+s2.send(bytes("PASS %s\r\n" % PASS, "UTF-8"))
+s2.send(bytes("NICK %s\r\n" % NICK, "UTF-8"))
+s2.send(bytes("JOIN #_ardahbot_1454310601454\r\n", "UTF-8"))
+s2.send(bytes("CAP REQ :twitch.tv/membership\r\n", "UTF-8"))
+s2.send(bytes("CAP REQ :twitch.tv/commands\r\n", "UTF-8"))
+s2.send(bytes("CAP REQ :twitch.tv/tags\r\n", "UTF-8"))
 
 # garbage vars bc im garbage at python
 duel_list = deque([])
@@ -57,16 +57,16 @@ memeteam = ["jereck00", "shin0l", "leo_n_milk"]
 
 def sendmessage(text):
     # Method for sending a message
-    s.send("PRIVMSG #" + CHAN + " :" + text + "\r\n")
+    s.send(bytes("PRIVMSG #" + CHAN + " :" + text + "\r\n", "UTF-8"))
 
 
 def sendSecret(username):
-    s2.send("PRIVMSG #ardahBot :.w " + username + " nice\r\n")
+    s2.send(bytes("PRIVMSG #ardahBot :.w " + username + " nice\r\n", "UTF-8"))
 
 
 def timeout(user, secs):
     timeout_message = "PRIVMSG #" + CHAN + ": /timeout %s %s\r\n" % (user, secs)
-    s.send(timeout_message)
+    s.send(bytes(timeout_message), "UTF-8")
 
 
 def generatememe():
@@ -201,7 +201,7 @@ def commands():
         sendmessage("Kreygasm")
 
     if message == "!sudoku":
-        print 'kicking %s from chat' % username
+        print('kicking %s from chat') % username
         sendmessage("He will be missed...")
         timeout_message = "PRIVMSG #" + CHAN + " :/timeout %s %s\r\n" % (username, 30)
         s.send(timeout_message)
@@ -323,17 +323,17 @@ def commands():
 sendmessage('it that bot')
 
 while True:
-    readbuffer = readbuffer + s.recv(1024)
-    temp = string.split(readbuffer, "\n")
+    readbuffer = readbuffer+s.recv(1024).decode("UTF-8")
+    temp = str.split(readbuffer, "\n")
     readbuffer = temp.pop()
 
     for line in temp:
         # Checks whether the message is PING because its a method of Twitch to check if you're afk
-        if (line[0] == "PING"):
-            s.send("PONG %s\r\n" % line[1])
+        if(line[0] == "PING"):
+            s.send(bytes("PONG %s\r\n" % line[1], "UTF-8"))
         else:
             # Splits the given string so we can work with it better
-            parts = string.split(line, ":")
+            parts = str.split(line, ":")
 
             if "QUIT" not in parts[1] and "JOIN" not in parts[1] and "PART" not in parts[1]:
                 try:
@@ -342,15 +342,17 @@ while True:
                 except:
                     message = ""
                 # Sets the username variable to the actual username
-                usernamesplit = string.split(parts[1], "!")
+                usernamesplit = str.split(parts[1], "!")
                 username = usernamesplit[0]
 
                 # Only works after twitch is done announcing stuff (MODT = Message of the day)
                 if MODT:
-                    print username + ": " + message
+                    print(username + ": " + message)
 
                     commands()
 
                 for l in parts:
                     if "End of /NAMES list" in l:
                         MODT = True
+
+            print("ok")
