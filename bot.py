@@ -8,6 +8,7 @@ import threading
 import os
 import traceback
 import re
+import requests
 from collections import deque
 
 # Set all the variables necessary to connect to Twitch IRC
@@ -24,13 +25,15 @@ CHANNEL_NAME = CHANNEL_NAME.lower()
 SLEEP_TIME = 120
 IRC_CHANNEL = "#" + CHANNEL_NAME
 
+APIKey = "RGAPI-c2b5b567-5229-46e9-b7b8-7eb218c1ea8f"
+
 HOST2 = "199.9.253.119"
 
 # Connecting to Twitch IRC by passing credentials and joining a certain channel
 s = socket.socket()
-s2 = socket.socket()
+#s2 = socket.socket()
 s.connect((HOST, PORT))
-s2.connect((HOST2, PORT))
+#s2.connect((HOST2, PORT))
 s.send(bytes("PASS %s\r\n" % PASS, "UTF-8"))
 s.send(bytes("NICK %s\r\n" % NICK, "UTF-8"))
 s.send(bytes("JOIN #%s\r\n" % CHAN, "UTF-8"))
@@ -38,12 +41,14 @@ s.send(bytes("CAP REQ :twitch.tv/membership\r\n", "UTF-8"))
 s.send(bytes("CAP REQ :twitch.tv/commands\r\n", "UTF-8"))
 s.send(bytes("CAP REQ :twitch.tv/tags\r\n", "UTF-8"))
 # connecting to the bot's chat group so that whispers work
+"""
 s2.send(bytes("PASS %s\r\n" % PASS, "UTF-8"))
 s2.send(bytes("NICK %s\r\n" % NICK, "UTF-8"))
 s2.send(bytes("JOIN #_ardahbot_1454310601454\r\n", "UTF-8"))
 s2.send(bytes("CAP REQ :twitch.tv/membership\r\n", "UTF-8"))
 s2.send(bytes("CAP REQ :twitch.tv/commands\r\n", "UTF-8"))
 s2.send(bytes("CAP REQ :twitch.tv/tags\r\n", "UTF-8"))
+"""
 
 # garbage vars bc im garbage at python
 duel_list = deque([])
@@ -53,7 +58,6 @@ followsDict = {}
 modsDict = {}
 points = {}
 memeteam = ["jereck00", "shin0l", "leo_n_milk"]
-
 
 def sendmessage(text):
     # Method for sending a message
@@ -67,6 +71,20 @@ def sendSecret(username):
 def timeout(user, secs):
     timeout_message = "PRIVMSG #" + CHAN + ": /timeout %s %s\r\n" % (user, secs)
     s.send(bytes(timeout_message), "UTF-8")
+    
+    
+def requestSummonerData(region, summonerName, APIKey):
+    URL = "https://" + region + ".api.pvp.net/api/lol/" + region + "/v1.4/summoner/by-name/" + summonerName + "?api_key=" + APIKey
+    response = requests.get(URL)
+    sendmessage('looking up summonerData')
+    return response.json()
+
+
+def requestRankedData(region, ID, APIKey):
+    URL = "https://" + region + ".api.pvp.net/api/lol/" + region + "/v2.5/league/by-summoner/" + ID + "/entry?api_key=" + APIKey
+    response = requests.get(URL)
+    sendmessage('looking up rankedData')
+    return response.json()
 
 
 def generatememe():
@@ -318,8 +336,18 @@ def commands():
     if message == '!countviewers':
         numCurrentChatters = str(numChatters())
         sendmessage("There are currently %s registered users in the chat" % numCurrentChatters)
-
-
+        
+    if '!lookup' in message:
+        region = 'NA'
+        summonerName = message[8:]
+        responseJSON  = requestSummonerData(region, summonerName, APIKey)
+        ID = responseJSON[summonerName]['id']
+        ID = str(ID)
+        responseJSON2 = requestRankedData(region, ID, APIKey)
+        sendmessage(responseJSON2[ID][0]['tier'])
+        sendmessage(responseJSON2[ID][0]['entries'][0]['division'])
+        sendmessage(responseJSON2[ID][0]['entries'][0]['leaguePoints'])
+		
 sendmessage('it that bot')
 
 while True:
