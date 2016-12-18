@@ -61,7 +61,7 @@ memeteam = ["jereck00", "shin0l", "leo_n_milk"]
 
 def sendmessage(text):
     # Method for sending a message
-    s.send(bytes("PRIVMSG #" + CHAN + " :" + text + "\r\n", "UTF-8"))
+    s.send(bytes("PRIVMSG #" + CHAN + " :" + str(text) + "\r\n", "UTF-8"))
 
 
 def sendSecret(username):
@@ -344,9 +344,12 @@ def commands():
         ID = responseJSON[summonerName]['id']
         ID = str(ID)
         responseJSON2 = requestRankedData(region, ID, APIKey)
-        sendmessage(responseJSON2[ID][0]['tier'])
-        sendmessage(responseJSON2[ID][0]['entries'][0]['division'])
-        sendmessage(responseJSON2[ID][0]['entries'][0]['leaguePoints'])
+        rank = responseJSON2[ID][0]['tier']
+        rank += " %s" % responseJSON2[ID][0]['entries'][0]['division']
+#sendmessage(responseJSON2[ID][0]['tier'])
+#       sendmessage(responseJSON2[ID][0]['entries'][0]['division'])
+        sendmessage(rank)
+        sendmessage("%s LP" % responseJSON2[ID][0]['entries'][0]['leaguePoints'])
 		
 sendmessage('it that bot')
 
