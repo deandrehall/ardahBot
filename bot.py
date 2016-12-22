@@ -2,7 +2,6 @@ import socket
 import string
 import random
 import time
-#import urllib2
 import json
 import threading
 import os
@@ -19,6 +18,7 @@ PORT = 6667
 PASS = "oauth:3hfhwlewgv2ydwkhohs6udttriheuo"
 readbuffer = ""
 MODT = False
+
 
 CHANNEL_NAME = CHAN
 CHANNEL_NAME = CHANNEL_NAME.lower()
@@ -76,14 +76,12 @@ def timeout(user, secs):
 def requestSummonerData(region, summonerName, APIKey):
     URL = "https://" + region + ".api.pvp.net/api/lol/" + region + "/v1.4/summoner/by-name/" + summonerName + "?api_key=" + APIKey
     response = requests.get(URL)
-    sendmessage('looking up summonerData')
     return response.json()
 
 
 def requestRankedData(region, ID, APIKey):
     URL = "https://" + region + ".api.pvp.net/api/lol/" + region + "/v2.5/league/by-summoner/" + ID + "/entry?api_key=" + APIKey
     response = requests.get(URL)
-    sendmessage('looking up rankedData')
     return response.json()
 
 
@@ -127,8 +125,8 @@ def follows(username):
         return followsDict[username]
 
     else:
-        r = urllib2.urlopen("https://api.twitch.tv/kraken/channels/" + CHAN + "/follows")
-        followJson = json.loads(r.read())
+        URL = "https://api.twitch.tv/kraken/channels/" + CHAN + "/follows"
+        followJson = requests.get(URL).json()
 
         for counter in range(0, len(followJson["follows"])):
             item = str(followJson["follows"][counter]["user"]["name"])
@@ -346,8 +344,6 @@ def commands():
         responseJSON2 = requestRankedData(region, ID, APIKey)
         rank = responseJSON2[ID][0]['tier']
         rank += " %s" % responseJSON2[ID][0]['entries'][0]['division']
-#sendmessage(responseJSON2[ID][0]['tier'])
-#       sendmessage(responseJSON2[ID][0]['entries'][0]['division'])
         sendmessage(rank)
         sendmessage("%s LP" % responseJSON2[ID][0]['entries'][0]['leaguePoints'])
 		
@@ -359,30 +355,24 @@ while True:
     readbuffer = temp.pop()
 
     for line in temp:
-        # Checks whether the message is PING because its a method of Twitch to check if you're afk
+        
         if(line[0] == "PING"):
             s.send(bytes("PONG %s\r\n" % line[1], "UTF-8"))
         else:
-            # Splits the given string so we can work with it better
             parts = str.split(line, ":")
 
             if "QUIT" not in parts[1] and "JOIN" not in parts[1] and "PART" not in parts[1]:
                 try:
-                    # Sets the message variable to the actual message sent
                     message = parts[2][:len(parts[2]) - 1]
                 except:
                     message = ""
-                # Sets the username variable to the actual username
+
                 usernamesplit = str.split(parts[1], "!")
                 username = usernamesplit[0]
 
-                # Only works after twitch is done announcing stuff (MODT = Message of the day)
                 if MODT:
                     print(username + ": " + message)
-
                     commands()
-
                 for l in parts:
                     if "End of /NAMES list" in l:
                         MODT = True
-
