@@ -8,6 +8,7 @@ import os
 import traceback
 import re
 import requests
+import sys
 from collections import deque
 
 # Set all the variables necessary to connect to Twitch IRC
@@ -196,7 +197,7 @@ def anotherdoodle():
         anotherdoodle()
 
 
-def commands():
+def commands(message, username):
     if message == "!secret":
         sendSecret(username)
 
@@ -344,35 +345,59 @@ def commands():
         responseJSON2 = requestRankedData(region, ID, APIKey)
         rank = responseJSON2[ID][0]['tier']
         rank += " %s" % responseJSON2[ID][0]['entries'][0]['division']
-        sendmessage(rank)
-        sendmessage("%s LP" % responseJSON2[ID][0]['entries'][0]['leaguePoints'])
+#sendmessage(rank)
+        sendmessage("{} {} LP".format(rank, responseJSON2[ID][0]['entries'][0]['leaguePoints']))
+ 
 		
 sendmessage('it that bot')
 
+def getUser(line):
+    username = ""
+    usernamesplit = str.split(parts[1], "!")
+    username = usernamesplit[0]
+    return username
+
+def getMessage(line):
+    try:
+        message = parts[2][:len(parts[2]) - 1]
+    except:
+        message = ""
+    return message
+
+
+def parseMessage(parts):
+    try:
+        username = getUser(parts)
+        message = getMessage(parts)
+    
+        if MODT:
+            print(username + ": " + message)
+            commands(message, username) 
+
+    except:
+        print(traceback.format_exc())
+
 while True:
-    readbuffer = readbuffer+s.recv(1024).decode("UTF-8")
-    temp = str.split(readbuffer, "\n")
-    readbuffer = temp.pop()
+    try:
+        readbuffer = readbuffer + s.recv(1024).decode("UTF-8")
+        temp = str.split(readbuffer, "\n")
+        readbuffer = temp.pop()
 
-    for line in temp:
-        
-        if(line[0] == "PING"):
-            s.send(bytes("PONG %s\r\n" % line[1], "UTF-8"))
-        else:
-            parts = str.split(line, ":")
+        for line in temp:
+#line = str.rstrip(line)
+#line = str.split(line)
 
-            if "QUIT" not in parts[1] and "JOIN" not in parts[1] and "PART" not in parts[1]:
-                try:
-                    message = parts[2][:len(parts[2]) - 1]
-                except:
-                    message = ""
+            if (line[0] == "PING"):
+                s.send(bytes("PONG %s\r\n" % line[1], "UTF-8")) 
+            else:
+                parts = str.split(line, ":")
 
-                usernamesplit = str.split(parts[1], "!")
-                username = usernamesplit[0]
+                parseMessage(parts)
 
-                if MODT:
-                    print(username + ": " + message)
-                    commands()
                 for l in parts:
                     if "End of /NAMES list" in l:
                         MODT = True
+
+            
+    except:
+        print(traceback.format_exc())
