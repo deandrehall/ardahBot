@@ -347,6 +347,11 @@ def commands(message, username):
         rank += " %s" % responseJSON2[ID][0]['entries'][0]['division']
 #sendmessage(rank)
         sendmessage("{} {} LP".format(rank, responseJSON2[ID][0]['entries'][0]['leaguePoints']))
+
+    if '!test' in message:
+        messageList = message.split()
+        index = messageList.index('!test')
+        sendmessage("command = {} arg1 = {} arg2 = {}".format(messageList[index], messageList[index+1],messageList[index+2]))
  
 		
 sendmessage('it that bot')
@@ -384,8 +389,6 @@ while True:
         readbuffer = temp.pop()
 
         for line in temp:
-#line = str.rstrip(line)
-#line = str.split(line)
 
             if (line[0] == "PING"):
                 s.send(bytes("PONG %s\r\n" % line[1], "UTF-8")) 
@@ -397,7 +400,6 @@ while True:
                 for l in parts:
                     if "End of /NAMES list" in l:
                         MODT = True
-
             
     except:
         print(traceback.format_exc())
