@@ -52,12 +52,9 @@ s2.send(bytes("CAP REQ :twitch.tv/tags\r\n", "UTF-8"))
 """
 
 # garbage vars bc im garbage at python
-duel_list = deque([])
+duel_list = {}
 defender = ''
 duel_check = False
-followsDict = {}
-modsDict = {}
-points = {}
 memeteam = ["jereck00", "shin0l", "leo_n_milk"]
 
 def sendmessage(text):
@@ -118,65 +115,7 @@ def generatememe():
         identicon = (half + half[::-1])
         sendmessage(identicon)
 
-
-def follows(username):
-    followsList = []
-
-    if username in followsDict:
-        return followsDict[username]
-
-    else:
-        URL = "https://api.twitch.tv/kraken/channels/" + CHAN + "/follows"
-        followJson = requests.get(URL).json()
-
-        for counter in range(0, len(followJson["follows"])):
-            item = str(followJson["follows"][counter]["user"]["name"])
-            followsList.append(item)
-
-            if item in followsList:
-                followsDict[item] = True
-            else:
-                followsDict[item] = False
-
-        if username in followsList:
-            return followsDict[username]
-        else:
-            return False
-
-
-def numChatters():
-    r = urllib2.urlopen("http://tmi.twitch.tv/group/user/" + CHAN + "/chatters")
-    viewingJson = json.loads(r.read())
-    return viewingJson["chatter_count"]
-
-
-def chatting(username):
-    viewerList = []
-
-    r = urllib2.urlopen("http://tmi.twitch.tv/group/user/" + CHAN + "/chatters")
-    viewingJson = json.loads(r.read())
-
-    for item in viewingJson["chatters"]["moderators"]:
-        viewerList.append(str(item))
-
-    for item in viewingJson["chatters"]["staff"]:
-        viewerList.append(str(item))
-
-    for item in viewingJson["chatters"]["admins"]:
-        viewerList.append(str(item))
-
-    for item in viewingJson["chatters"]["global_mods"]:
-        viewerList.append(str(item))
-
-    for item in viewingJson["chatters"]["viewers"]:
-        viewerList.append(str(item))
-
-    if username in viewerList:
-        return True
-    else:
-        return False
-
-
+ 
 def anotherdog():
     time.sleep(0.4)
     hotdogyes = random.randint(1, 4)
@@ -196,8 +135,15 @@ def anotherdoodle():
         sendmessage('8=D')
         anotherdoodle()
 
+def duel(challenger, target):
+    duel_list[target] = challenger
+    duelMessage = '/me {} has challenged {} to a duel PogChamp type !accept to confirm duel'.format(challenger, target)
+
+    sendmessage(duelMessage)
+
 
 def commands(message, username):
+    global duel_list
     if message == "!secret":
         sendSecret(username)
 
@@ -222,40 +168,32 @@ def commands(message, username):
         sendmessage("He will be missed...")
         timeout_message = "PRIVMSG #" + CHAN + " :/timeout %s %s\r\n" % (username, 30)
         s.send(timeout_message)
-        s2.send("PRIVMSG #ardahBot :.w " + username + " rip 2 u\r\n")
-
+        
     if message == "!uptime":
         sendmessage('dre hasn\'t figured out how to implement this command yet lmao')
         time.sleep(.5)
         sendmessage('If you have the BetterTwitchTV extension you can type /uptime')
 
-    if '!duel' in message and len(duel_list) == 0:
-        duel_list.append(username)
-        duel_list.append(message[6:])
-        duel_message = '/me %s has challenged %s to a duel PogChamp type !accept to confirm duel' % (
-            duel_list[0], duel_list[1])
-        sendmessage(duel_message)
+    if '!duel' in message:
+        messageList = message.split()
+        index = messageList.index('!duel')
+        duel(username, messageList[index+1])
 
-    if len(duel_list) == 2 and username == duel_list[1] and message == '!accept':
+    if username in duel_list and message == '!accept':
         coin = random.randint(0, 1)
         if coin == 0:
-            victory_message = '/me %s has won the duel against %s! PogChamp' % (
-                duel_list[0], duel_list[1])
+            victory_message = '/me {} has won the duel against {}! PogChamp'.format(username, duel_list[username])
             sendmessage(victory_message)
+            del duel_list[username]
         if coin == 1:
-            defeat_message = '/me %s has defeated %s in a duel! PogChamp' % (duel_list[1], duel_list[0])
+            defeat_message = '/me {} has defeated {} in a duel! PogChamp'.format(duel_list[username], username)
             sendmessage(defeat_message)
             sendmessage('Never lucky BabyRage')
-            duel_list.popleft()
-            duel_list.popleft()
+            del duel_list[username] 
 
-    if message == '!cancelduel' and username == duel_list[0] and len(duel_list) == 2:
-        cancel_duel_message = '%s has canceled the duel' % (duel_list[0])
-        sendmessage(cancel_duel_message)
-        duel_list.popleft()
-        duel_list.popleft()
+#cancel duel command goes here
 
-    if '!duel' in message and username not in duel_list:
+    if '!duel' in message and username in duel_list:
         if message[6:] == duel_list[0]:
             duel_in_progress = '%s currently has a duel pending' % (duel_list[0])
             suggest_cancel = '%s can cancel the pending duel by typing !cancelduel' % (duel_list[0])
@@ -267,32 +205,28 @@ def commands(message, username):
             sendmessage(duel_in_progress)
             sendmessage(suggest_cancel)
 
-    if message == '!decline' and len(duel_list) == 2 and username == duel_list[1]:
+    if message == '!decline' and len(duel_list) > 0 and username == duel_list[1]:
         decline_message = '%s has declined the duel with %s' % (duel_list[1], duel_list[0])
         sendmessage(decline_message)
         duel_list.popleft()
         duel_list.popleft()
 
-    if '!duel' in message and len(duel_list) == 2 and username not in duel_list:
-        sendmessage('The duel list is currently full. Please wait until the pending duel has completed')
-
-    if '!duel' in message and message[6:] == 'ardahbot':
+    if '!duel' in message and message[6:] == 'ardahBot':
         time.sleep((random.randint(1, 3)))
         sendmessage('!accept')
         coin = random.randint(0, 1)
         if coin == 0:
-            victory_message = '/me %s has won the duel against %s! PogChamp' % (
-                duel_list[0], duel_list[1])
+            victory_message = '/me %s has won the duel against %s! PogChamp' % ('ardahBot', duel_list['ardahBot'])
             sendmessage(victory_message)
         if coin == 1:
-            defeat_message = '/me %s has defeated %s in a duel! PogChamp' % (duel_list[1], duel_list[0])
+            defeat_message = '/me %s has defeated %s in a duel! PogChamp' % (duel_list['ardahBot'], 'ardahBot')
             sendmessage(defeat_message)
+            time.sleep((random.randint(1,3)))
             sendmessage('Never lucky BabyRage')
-        duel_list.popleft()
-        duel_list.popleft()
+        del duel_list['ardahBot']
 
     if message == '!clearduels' and username == 'jereck00':
-        duel_list[:] = []
+        duel_list = {} 
         sendmessage('clearing duel queue')
 
     if message == '!n8iscool':
@@ -315,30 +249,14 @@ def commands(message, username):
     if message == '!draw':
         generatememe()
 
-    if '!following' in message:
-        name = message[11:]
-        if follows(name.lower()):
-            sendmessage("%s is following the channel!" % name)
-        else:
-            sendmessage("%s is not following the channel DansGame" % name)
-
-    if '!chatting' in message:
-        name = message[10:]
-        if chatting(name):
-            sendmessage("%s is with us" % name)
-        else:
-            sendmessage("%s is not with us" % name)
-
     if message == '!github':
         sendmessage('https://github.com/deandrehall/ardahBot')
-
-    if message == '!countviewers':
-        numCurrentChatters = str(numChatters())
-        sendmessage("There are currently %s registered users in the chat" % numCurrentChatters)
         
     if '!lookup' in message:
         region = 'NA'
-        summonerName = message[8:]
+        messageList = message.split()
+        index = messageList.index('!lookup')
+        summonerName = messageList[index+1]
         responseJSON  = requestSummonerData(region, summonerName, APIKey)
         ID = responseJSON[summonerName]['id']
         ID = str(ID)
