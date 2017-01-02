@@ -11,10 +11,10 @@ import requests
 import sys
 from collections import deque
 
-# Set all the variables necessary to connect to Twitch IRC
-HOST = "irc.twitch.tv"  # irc.twitch.tv
+# connecting to Twitch IRC 
+HOST = "irc.twitch.tv"  
 NICK = "ardahbot"
-CHAN = 'jereck00'  # Name of your channel
+CHAN = 'jereck00'  # channel name 
 PORT = 6667
 PASS = "oauth:3hfhwlewgv2ydwkhohs6udttriheuo"
 readbuffer = ""
@@ -32,38 +32,21 @@ HOST2 = "199.9.253.119"
 
 # Connecting to Twitch IRC by passing credentials and joining a certain channel
 s = socket.socket()
-#s2 = socket.socket()
 s.connect((HOST, PORT))
-#s2.connect((HOST2, PORT))
 s.send(bytes("PASS %s\r\n" % PASS, "UTF-8"))
 s.send(bytes("NICK %s\r\n" % NICK, "UTF-8"))
 s.send(bytes("JOIN #%s\r\n" % CHAN, "UTF-8"))
 s.send(bytes("CAP REQ :twitch.tv/membership\r\n", "UTF-8"))
 s.send(bytes("CAP REQ :twitch.tv/commands\r\n", "UTF-8"))
 s.send(bytes("CAP REQ :twitch.tv/tags\r\n", "UTF-8"))
-# connecting to the bot's chat group so that whispers work
-"""
-s2.send(bytes("PASS %s\r\n" % PASS, "UTF-8"))
-s2.send(bytes("NICK %s\r\n" % NICK, "UTF-8"))
-s2.send(bytes("JOIN #_ardahbot_1454310601454\r\n", "UTF-8"))
-s2.send(bytes("CAP REQ :twitch.tv/membership\r\n", "UTF-8"))
-s2.send(bytes("CAP REQ :twitch.tv/commands\r\n", "UTF-8"))
-s2.send(bytes("CAP REQ :twitch.tv/tags\r\n", "UTF-8"))
-"""
 
-# garbage vars bc im garbage at python
+#globals
 duel_list = {}
-defender = ''
-duel_check = False
 memeteam = ["jereck00", "shin0l", "leo_n_milk"]
 
 def sendmessage(text):
     # Method for sending a message
     s.send(bytes("PRIVMSG #" + CHAN + " :" + str(text) + "\r\n", "UTF-8"))
-
-
-def sendSecret(username):
-    s2.send(bytes("PRIVMSG #ardahBot :.w " + username + " nice\r\n", "UTF-8"))
 
 
 def timeout(user, secs):
@@ -136,10 +119,23 @@ def anotherdoodle():
         anotherdoodle()
 
 def duel(challenger, target):
+    global duel_list
     duel_list[target] = challenger
     duelMessage = '/me {} has challenged {} to a duel PogChamp type !accept to confirm duel'.format(challenger, target)
-
     sendmessage(duelMessage)
+
+
+def cointoss(username):
+    global duel_list
+    coin = random.randint(0, 1)
+    if coin == 0:
+        victory_message = '/me {} has won the duel against {}! PogChamp'.format(username, duel_list[username])
+        sendmessage(victory_message)
+    if coin == 1:
+        defeat_message = '/me {} has defeated {} in a duel! PogChamp'.format(duel_list[username], username)
+        sendmessage(defeat_message)
+        sendmessage('Never lucky BabyRage')
+    del duel_list[username] 
 
 
 def commands(message, username):
@@ -167,67 +163,34 @@ def commands(message, username):
         print('kicking %s from chat') % username
         sendmessage("He will be missed...")
         timeout_message = "PRIVMSG #" + CHAN + " :/timeout %s %s\r\n" % (username, 30)
-        s.send(timeout_message)
-        
-    if message == "!uptime":
-        sendmessage('dre hasn\'t figured out how to implement this command yet lmao')
-        time.sleep(.5)
-        sendmessage('If you have the BetterTwitchTV extension you can type /uptime')
+        s.send(timeout_message) 
 
     if '!duel' in message:
         messageList = message.split()
         index = messageList.index('!duel')
-        duel(username, messageList[index+1])
 
-    if username in duel_list and message == '!accept':
-        coin = random.randint(0, 1)
-        if coin == 0:
-            victory_message = '/me {} has won the duel against {}! PogChamp'.format(username, duel_list[username])
-            sendmessage(victory_message)
-            del duel_list[username]
-        if coin == 1:
-            defeat_message = '/me {} has defeated {} in a duel! PogChamp'.format(duel_list[username], username)
-            sendmessage(defeat_message)
-            sendmessage('Never lucky BabyRage')
-            del duel_list[username] 
+        if messageList[index+1] not in duel_list:
+            duel(username, messageList[index+1])
+        else:
+            del duel_list[messageList[index+1]]
+            duel(username, messageList[index+1]) 
 
-#cancel duel command goes here
+        if messageList[index+1] == 'ardahBot':
+            time.sleep((random.randint(1, 3)))
+            sendmessage('!accept')
+            cointoss('ardahBot')
 
-    if '!duel' in message and username in duel_list:
-        if message[6:] == duel_list[0]:
-            duel_in_progress = '%s currently has a duel pending' % (duel_list[0])
-            suggest_cancel = '%s can cancel the pending duel by typing !cancelduel' % (duel_list[0])
-            sendmessage(duel_in_progress)
-            sendmessage(suggest_cancel)
-        if message[6:] == duel_list[1]:
-            duel_in_progress = '%s currently has a duel pending' % (duel_list[1])
-            suggest_cancel = '%s can cancel the pending duel by typing !cancelduel' % (duel_list[1])
-            sendmessage(duel_in_progress)
-            sendmessage(suggest_cancel)
+    if message == '!accept' and username in duel_list:
+       cointoss(username) 
 
-    if message == '!decline' and len(duel_list) > 0 and username == duel_list[1]:
-        decline_message = '%s has declined the duel with %s' % (duel_list[1], duel_list[0])
+    if message == '!decline' and username in duel_list:
+        decline_message = '{} has declined the duel with {}'.format(username, duel_list[username])
         sendmessage(decline_message)
-        duel_list.popleft()
-        duel_list.popleft()
-
-    if '!duel' in message and message[6:] == 'ardahBot':
-        time.sleep((random.randint(1, 3)))
-        sendmessage('!accept')
-        coin = random.randint(0, 1)
-        if coin == 0:
-            victory_message = '/me %s has won the duel against %s! PogChamp' % ('ardahBot', duel_list['ardahBot'])
-            sendmessage(victory_message)
-        if coin == 1:
-            defeat_message = '/me %s has defeated %s in a duel! PogChamp' % (duel_list['ardahBot'], 'ardahBot')
-            sendmessage(defeat_message)
-            time.sleep((random.randint(1,3)))
-            sendmessage('Never lucky BabyRage')
-        del duel_list['ardahBot']
-
+        del duel_list[username]
+        
     if message == '!clearduels' and username == 'jereck00':
         duel_list = {} 
-        sendmessage('clearing duel queue')
+        sendmessage('clearing duel list')
 
     if message == '!n8iscool':
         sendmessage('http://i.imgur.com/fcWhKyU.jpg')
@@ -266,13 +229,13 @@ def commands(message, username):
 #sendmessage(rank)
         sendmessage("{} {} LP".format(rank, responseJSON2[ID][0]['entries'][0]['leaguePoints']))
 
-    if '!test' in message:
+    if '!test' in message and username == 'jereck00':
         messageList = message.split()
         index = messageList.index('!test')
         sendmessage("command = {} arg1 = {} arg2 = {}".format(messageList[index], messageList[index+1],messageList[index+2]))
  
 		
-sendmessage('it that bot')
+sendmessage('it that bot MrDestructoid')
 
 def getUser(line):
     username = ""
