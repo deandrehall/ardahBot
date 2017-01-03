@@ -14,7 +14,7 @@ from collections import deque
 # connecting to Twitch IRC 
 HOST = "irc.twitch.tv"  
 NICK = "ardahbot"
-CHAN = 'jereck00'  # channel name 
+CHAN = 'owolisha'  # channel name 
 PORT = 6667
 PASS = "oauth:3hfhwlewgv2ydwkhohs6udttriheuo"
 readbuffer = ""
@@ -181,7 +181,8 @@ def commands(message, username):
             cointoss('ardahBot')
 
     if message == '!accept' and username in duel_list:
-       cointoss(username) 
+        time.sleep((random.randint(0,1)))
+        cointoss(username) 
 
     if message == '!decline' and username in duel_list:
         decline_message = '{} has declined the duel with {}'.format(username, duel_list[username])
@@ -235,52 +236,37 @@ def commands(message, username):
         sendmessage("command = {} arg1 = {} arg2 = {}".format(messageList[index], messageList[index+1],messageList[index+2]))
  
 		
-sendmessage('it that bot MrDestructoid')
-
-def getUser(line):
-    username = ""
-    usernamesplit = str.split(parts[1], "!")
-    username = usernamesplit[0]
-    return username
-
-def getMessage(line):
-    try:
-        message = parts[2][:len(parts[2]) - 1]
-    except:
-        message = ""
-    return message
-
-
-def parseMessage(parts):
-    try:
-        username = getUser(parts)
-        message = getMessage(parts)
-    
-        if MODT:
-            print(username + ": " + message)
-            commands(message, username) 
-
-    except:
-        print(traceback.format_exc())
+print('it that bot MrDestructoid')
 
 while True:
-    try:
-        readbuffer = readbuffer + s.recv(1024).decode("UTF-8")
-        temp = str.split(readbuffer, "\n")
-        readbuffer = temp.pop()
+    readbuffer = readbuffer+s.recv(1024).decode("UTF-8")
+    temp = str.split(readbuffer, "\n")
+    readbuffer = temp.pop()
 
-        for line in temp:
+    for line in temp:
+        # Checks whether the message is PING because its a method of Twitch to check if you're afk
+        if(line[0] == "PING"):
+            s.send(bytes("PONG %s\r\n" % line[1], "UTF-8"))
+        else:
+            # Splits the given string so we can work with it better
+            parts = str.split(line, ":")
 
-            if (line[0] == "PING"):
-                s.send(bytes("PONG %s\r\n" % line[1], "UTF-8")) 
-            else:
-                parts = str.split(line, ":")
+            if "QUIT" not in parts[1] and "JOIN" not in parts[1] and "PART" not in parts[1]:
+                try:
+                    # Sets the message variable to the actual message sent
+                    message = parts[2][:len(parts[2]) - 1]
+                except:
+                    message = ""
+                # Sets the username variable to the actual username
+                usernamesplit = str.split(parts[1], "!")
+                username = usernamesplit[0]
 
-                parseMessage(parts)
+                # Only works after twitch is done announcing stuff (MODT = Message of the day)
+                if MODT:
+                    print(username + ": " + message)
+
+                    commands(message, username)
 
                 for l in parts:
                     if "End of /NAMES list" in l:
                         MODT = True
-            
-    except:
-        print(traceback.format_exc())
