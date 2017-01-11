@@ -13,13 +13,12 @@ from collections import deque
 
 # connecting to Twitch IRC 
 HOST = "irc.twitch.tv"  
-NICK = "ardahbot"
-CHAN = 'owolisha'  # channel name 
+NICK = "ardahbot" #+ str(random.randint(10000, 9999999))
+CHAN = 'tsm_dyrus'  # channel name 
 PORT = 6667
 PASS = "oauth:3hfhwlewgv2ydwkhohs6udttriheuo"
 readbuffer = ""
 MODT = False
-
 
 CHANNEL_NAME = CHAN
 CHANNEL_NAME = CHANNEL_NAME.lower()
@@ -239,9 +238,13 @@ def commands(message, username):
 print('it that bot MrDestructoid')
 
 while True:
-    readbuffer = readbuffer+s.recv(1024).decode("UTF-8")
-    temp = str.split(readbuffer, "\n")
-    readbuffer = temp.pop()
+
+    try:
+        readbuffer = readbuffer+s.recv(1024).decode("UTF-8")
+        temp = str.split(readbuffer, "\n")
+        readbuffer = temp.pop()
+    except:
+        print(traceback.format_exc())
 
     for line in temp:
         # Checks whether the message is PING because its a method of Twitch to check if you're afk
@@ -261,12 +264,7 @@ while True:
                 usernamesplit = str.split(parts[1], "!")
                 username = usernamesplit[0]
 
-                # Only works after twitch is done announcing stuff (MODT = Message of the day)
-                if MODT:
-                    print(username + ": " + message)
+                print(username + ": " + message)
+                commands(message, username)
 
-                    commands(message, username)
-
-                for l in parts:
-                    if "End of /NAMES list" in l:
-                        MODT = True
+               

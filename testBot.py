@@ -125,8 +125,8 @@ def parseMessage(line):
         for key in points:
             pointsFile.write(key + ":" + str(points[key]) + "\n")
         pointsFile.close()
-        print "User: " + user
-        print "Message: " + ' '.join(msg)
+        print("User: " + user)
+        print("Message: " + ' '.join(msg))
         message = ' '.join(msg)
         msg = message.split(' ')
         if (msg[0].lower() == "!points") and (len(msg) == 4) and (user in modsMap):
@@ -137,13 +137,13 @@ def parseMessage(line):
                     points[msg[2]] = int(msg[3])
         if (msg[0].lower() == "!points") and (len(msg) == 4) and (user in modsMap):
             if msg[1].lower() == "take":
-                print "subtracting "
+                print("subtracting ")
                 if msg[2] in points:
                     points[msg[2]] = points[msg[2]] - int(msg[3])
                 else:
                     points[msg[2]] = int(msg[3])
     except:
-        print traceback.format_exc()
+        print(traceback.format_exc())
 
 
 while True:
@@ -160,4 +160,4 @@ while True:
             if (line[0] == "PING"):
                 s.send("PONG %s\r\n" % line[1])
     except:
-        print traceback.format_exc()
+        print(traceback.format_exc())
