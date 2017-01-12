@@ -9,7 +9,7 @@ import traceback
 import re
 import requests
 import sys
-from collections import deque
+import sqlite3
 
 # connecting to Twitch IRC 
 HOST = "irc.twitch.tv"  
@@ -39,9 +39,53 @@ s.send(bytes("CAP REQ :twitch.tv/membership\r\n", "UTF-8"))
 s.send(bytes("CAP REQ :twitch.tv/commands\r\n", "UTF-8"))
 s.send(bytes("CAP REQ :twitch.tv/tags\r\n", "UTF-8"))
 
+if os.path.exists("{}DB.db".format(CHAN)):
+    dbcon = sqlite3.connect("{}DB.db".format(CHAN))
+    cursor = dbcon.cursor()
+else:
+    dbcon = sqlite3.connect("{}DB.db".format(CHAN))
+    cursor = dbcon.cursor()
+    cursor.execute('CREATE TABLE channelPoints(username text PRIMARY KEY,points INT DEFAULT 0)')
+    dbcon.commit()
+
 #globals
 duel_list = {}
 memeteam = ["jereck00", "shin0l", "leo_n_milk"]
+
+def tablereport():
+    global dbcon
+    global cursor
+
+    for x in cursor.execute('SELECT * from channelPoints ORDER BY points'):
+        sendmessage(x)
+
+def requestpoints(message):
+    global dbcon
+    global cursor
+    
+    messagelist = message.split()
+    index = messagelist.index('!points')
+    if len(messagelist) == 1:
+        u = username
+    elif len(messagelist) == 2:
+        u = messagelist[index+1]
+    cursor.execute('SELECT points FROM channelPoints WHERE username=?',((u,)))
+    sendmessage(cursor.fetchone())
+
+
+def givepoints(message):
+    global dbcon
+    global cursor
+
+    messagelist = message.split()
+    index = messagelist.index('!givepoints')
+    u = str(messagelist[index+1])
+    p = messagelist[index+2]
+
+    cursor.execute('UPDATE channelPoints SET points=points+? WHERE username=?',(p, u))
+    dbcon.commit()
+    sendmessage("{} has been given {} points".format(u, p))
+
 
 def sendmessage(text):
     # Method for sending a message
@@ -219,7 +263,8 @@ def commands(message, username):
         region = 'NA'
         messageList = message.split()
         index = messageList.index('!lookup')
-        summonerName = messageList[index+1]
+        messageList.remove(index)
+        summonerName = ' '.join(messageList)
         responseJSON  = requestSummonerData(region, summonerName, APIKey)
         ID = responseJSON[summonerName]['id']
         ID = str(ID)
@@ -230,14 +275,20 @@ def commands(message, username):
         sendmessage("{} {} LP".format(rank, responseJSON2[ID][0]['entries'][0]['leaguePoints']))
 
     if '!test' in message and username == 'jereck00':
-        messageList = message.split()
-        index = messageList.index('!test')
-        sendmessage("command = {} arg1 = {} arg2 = {}".format(messageList[index], messageList[index+1],messageList[index+2]))
+        tablereport() 
+
+    if '!points' in message:
+        requestpoints(message)
+
+    if '!givepoints' in message and username == 'jereck00':
+        givepoints(message)
  
 		
 print('it that bot MrDestructoid')
 
 while True:
+    global dbcon
+    global cursor
 
     try:
         readbuffer = readbuffer+s.recv(1024).decode("UTF-8")
@@ -265,6 +316,9 @@ while True:
                 # Sets the username variable to the actual username
                 usernamesplit = str.split(parts[1], "!")
                 username = usernamesplit[0]
+                
+                cursor.execute('INSERT OR IGNORE INTO channelPoints (username, points) VALUES (?,?)',(username,'0'))
+                dbcon.commit()
 
                 print(username + ": " + message)
                 commands(message, username)
