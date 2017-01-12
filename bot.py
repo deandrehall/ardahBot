@@ -13,8 +13,8 @@ from collections import deque
 
 # connecting to Twitch IRC 
 HOST = "irc.twitch.tv"  
-NICK = "ardahbot" #+ str(random.randint(10000, 9999999))
-CHAN = 'tsm_dyrus'  # channel name 
+NICK = "ardahbot" 
+CHAN = 'jereck00'  # channel name 
 PORT = 6667
 PASS = "oauth:3hfhwlewgv2ydwkhohs6udttriheuo"
 readbuffer = ""
@@ -243,6 +243,8 @@ while True:
         readbuffer = readbuffer+s.recv(1024).decode("UTF-8")
         temp = str.split(readbuffer, "\n")
         readbuffer = temp.pop()
+    except KeyboardInterrupt:
+        raise
     except:
         print(traceback.format_exc())
 
