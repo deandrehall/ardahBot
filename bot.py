@@ -10,6 +10,7 @@ import re
 import requests
 import sys
 import sqlite3
+import datetime
 
 # connecting to Twitch IRC 
 HOST = "irc.twitch.tv"  
@@ -38,6 +39,15 @@ s.send(bytes("JOIN #%s\r\n" % CHAN, "UTF-8"))
 s.send(bytes("CAP REQ :twitch.tv/membership\r\n", "UTF-8"))
 s.send(bytes("CAP REQ :twitch.tv/commands\r\n", "UTF-8"))
 s.send(bytes("CAP REQ :twitch.tv/tags\r\n", "UTF-8"))
+
+def socketconnection(): 
+    s.connect((HOST, PORT))
+    s.send(bytes("PASS %s\r\n" % PASS, "UTF-8"))
+    s.send(bytes("NICK %s\r\n" % NICK, "UTF-8"))
+    s.send(bytes("JOIN #%s\r\n" % CHAN, "UTF-8"))
+    s.send(bytes("CAP REQ :twitch.tv/membership\r\n", "UTF-8"))
+    s.send(bytes("CAP REQ :twitch.tv/commands\r\n", "UTF-8"))
+    s.send(bytes("CAP REQ :twitch.tv/tags\r\n", "UTF-8"))
 
 if os.path.exists("{}DB.db".format(CHAN)):
     dbcon = sqlite3.connect("{}DB.db".format(CHAN))
@@ -95,6 +105,14 @@ def sendmessage(text):
 def timeout(user, secs):
     timeout_message = "PRIVMSG #" + CHAN + ": /timeout %s %s\r\n" % (user, secs)
     s.send(bytes(timeout_message), "UTF-8")
+
+
+def puppet():
+    while True:
+        message = input(' assuming direct control: ') 
+        sendmessage(message)
+        commands(message, 'ardahBot')
+        
     
     
 def requestSummonerData(region, summonerName, APIKey):
@@ -210,6 +228,7 @@ def commands(message, username):
 
     if '!duel' in message:
         messageList = message.split()
+        messageList = [e.lower() for e in messageList]
         index = messageList.index('!duel')
 
         if messageList[index+1] not in duel_list:
@@ -218,10 +237,10 @@ def commands(message, username):
             del duel_list[messageList[index+1]]
             duel(username, messageList[index+1]) 
 
-        if messageList[index+1] == 'ardahBot':
+        if messageList[index+1] == 'ardahBot'.lower():
             time.sleep((random.randint(1, 3)))
             sendmessage('!accept')
-            cointoss('ardahBot')
+            cointoss('ardahbot')
 
     if message == '!accept' and username in duel_list:
         time.sleep((random.randint(0,1)))
@@ -282,32 +301,27 @@ def commands(message, username):
 
     if '!givepoints' in message and username == 'jereck00':
         givepoints(message)
- 
-		
+
+    if message == '!reconnect' and username == 'jereck00':
+        socketconnection()
+
 print('it that bot MrDestructoid')
+t = threading.Thread(target=puppet).start()
 
-while True:
-    global dbcon
-    global cursor
-
+while True: 
     try:
         readbuffer = readbuffer+s.recv(1024).decode("UTF-8")
         temp = str.split(readbuffer, "\n")
-        readbuffer = temp.pop()
-    except KeyboardInterrupt:
-        raise
-    except:
-        print(traceback.format_exc())
+        readbuffer = temp.pop() 
 
-    for line in temp:
-        # Checks whether the message is PING because its a method of Twitch to check if you're afk
-        if(line[0] == "PING"):
-            s.send(bytes("PONG %s\r\n" % line[1], "UTF-8"))
-        else:
-            # Splits the given string so we can work with it better
-            parts = str.split(line, ":")
+        for line in temp:
+            # Checks whether the message is PING because its a method of Twitch to check if you're afk
+            if(line[0] == "PING"):
+                s.send(bytes("PONG %s\r\n" % line[1], "UTF-8"))
+            else:
+                # Splits the given string so we can work with it better
+                parts = str.split(line, ":")
 
-            if "QUIT" not in parts[1] and "JOIN" not in parts[1] and "PART" not in parts[1]:
                 try:
                     # Sets the message variable to the actual message sent
                     message = parts[2][:len(parts[2]) - 1]
@@ -321,6 +335,11 @@ while True:
                 dbcon.commit()
 
                 print(username + ": " + message)
-                commands(message, username)
+                commands(message, username.lower())
 
+    except KeyboardInterrupt:
+        raise
+    except:
+        print(traceback.format_exc())
+                    
                
