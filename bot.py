@@ -15,7 +15,7 @@ import datetime
 # connecting to Twitch IRC 
 HOST = "irc.twitch.tv"  
 NICK = "ardahbot" 
-CHAN = 'based_yoona'  # channel name 
+CHAN = 'jereck00'  # channel name 
 PORT = 6667
 PASS = "oauth:3hfhwlewgv2ydwkhohs6udttriheuo"
 readbuffer = ""
