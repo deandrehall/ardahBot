@@ -40,7 +40,8 @@ s.send(bytes("CAP REQ :twitch.tv/membership\r\n", "UTF-8"))
 s.send(bytes("CAP REQ :twitch.tv/commands\r\n", "UTF-8"))
 s.send(bytes("CAP REQ :twitch.tv/tags\r\n", "UTF-8"))
 
-def socketconnection(): 
+def socketconnection():
+    global s, HOST, PORT, NICK, CHAN 
     s.connect((HOST, PORT))
     s.send(bytes("PASS %s\r\n" % PASS, "UTF-8"))
     s.send(bytes("NICK %s\r\n" % NICK, "UTF-8"))
@@ -107,13 +108,31 @@ def timeout(user, secs):
     s.send(bytes(timeout_message), "UTF-8")
 
 
+def uptime():
+    global CHAN
+    url = "https://api.rtainc.co/twitch/uptime?channel={}".format(CHAN)
+    page = requests.get(url)
+    for x in page:
+        sendmessage(x.strip().decode('UTF-8'))
+
+
+def followage(username):
+    global CHAN
+    url = "https://api.rtainc.co/twitch/channels/{}/followers/{}".format(CHAN,username)
+    page = requests.get(url)
+    for x in page:
+        sendmessage(x.decode('UTF-8'))
+
+
 def puppet():
-    while True:
-        message = input(' assuming direct control: ') 
-        sendmessage(message)
-        commands(message, 'ardahBot')
+    try:
+        while True:
+            message = input(' assuming direct control: ') 
+            sendmessage(message)
+            commands(message, 'ardahBot')
+    except BrokenPipeError:
+        socketconnection()
         
-    
     
 def requestSummonerData(region, summonerName, APIKey):
     URL = "https://" + region + ".api.pvp.net/api/lol/" + region + "/v1.4/summoner/by-name/" + summonerName + "?api_key=" + APIKey
@@ -305,11 +324,18 @@ def commands(message, username):
     if message == '!reconnect' and username == 'jereck00':
         socketconnection()
 
+    if message == '!uptime':
+        uptime()
+
+    if message == '!followage':
+        followage(username)
+
 print('it that bot MrDestructoid')
 t = threading.Thread(target=puppet).start()
 
-while True: 
-    try:
+def messageloop():
+    while True: 
+        global s, readbuffer, dbcon, cursor 
         readbuffer = readbuffer+s.recv(1024).decode("UTF-8")
         temp = str.split(readbuffer, "\n")
         readbuffer = temp.pop() 
@@ -336,10 +362,12 @@ while True:
 
                 print(username + ": " + message)
                 commands(message, username.lower())
-
+while True:
+    try:
+        messageloop()
     except KeyboardInterrupt:
-        raise
+        raise 
     except:
         print(traceback.format_exc())
-                    
-               
+        socketconnection()
+        messageloop()
