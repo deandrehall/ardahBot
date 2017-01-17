@@ -15,7 +15,7 @@ import datetime
 # connecting to Twitch IRC 
 HOST = "irc.twitch.tv"  
 NICK = "ardahbot" 
-CHAN = 'jereck00'  # channel name 
+CHAN = 'based_yoona'  # channel name 
 PORT = 6667
 PASS = "oauth:3hfhwlewgv2ydwkhohs6udttriheuo"
 readbuffer = ""
@@ -42,13 +42,17 @@ s.send(bytes("CAP REQ :twitch.tv/tags\r\n", "UTF-8"))
 
 def socketconnection():
     global s, HOST, PORT, NICK, CHAN 
-    s.connect((HOST, PORT))
-    s.send(bytes("PASS %s\r\n" % PASS, "UTF-8"))
-    s.send(bytes("NICK %s\r\n" % NICK, "UTF-8"))
-    s.send(bytes("JOIN #%s\r\n" % CHAN, "UTF-8"))
-    s.send(bytes("CAP REQ :twitch.tv/membership\r\n", "UTF-8"))
-    s.send(bytes("CAP REQ :twitch.tv/commands\r\n", "UTF-8"))
-    s.send(bytes("CAP REQ :twitch.tv/tags\r\n", "UTF-8"))
+    try:
+        s.close()
+        s.connect((HOST, PORT))
+        s.send(bytes("PASS %s\r\n" % PASS, "UTF-8"))
+        s.send(bytes("NICK %s\r\n" % NICK, "UTF-8"))
+        s.send(bytes("JOIN #%s\r\n" % CHAN, "UTF-8"))
+        s.send(bytes("CAP REQ :twitch.tv/membership\r\n", "UTF-8"))
+        s.send(bytes("CAP REQ :twitch.tv/commands\r\n", "UTF-8"))
+        s.send(bytes("CAP REQ :twitch.tv/tags\r\n", "UTF-8"))
+    except:
+        print(traceback.format_exc())
 
 if os.path.exists("{}DB.db".format(CHAN)):
     dbcon = sqlite3.connect("{}DB.db".format(CHAN))
@@ -70,32 +74,37 @@ def tablereport():
     for x in cursor.execute('SELECT * from channelPoints ORDER BY points'):
         sendmessage(x)
 
-def requestpoints(message):
+def requestpoints(message, username):
     global dbcon
     global cursor
     
     messagelist = message.split()
     index = messagelist.index('!points')
-    if len(messagelist) == 1:
-        u = username
-    elif len(messagelist) == 2:
-        u = messagelist[index+1]
-    cursor.execute('SELECT points FROM channelPoints WHERE username=?',((u,)))
-    sendmessage(cursor.fetchone())
+    try:
+        if len(messagelist) == 1:
+            u = username
+        elif len(messagelist) == 2:
+            u = messagelist[index+1]
+        cursor.execute('SELECT points FROM channelPoints WHERE username=?',((u,)))
+        sendmessage(cursor.fetchone()[0])
+    except:
+        print(traceback.format_exc())
 
 
 def givepoints(message):
     global dbcon
     global cursor
+    try:
+        messagelist = message.split()
+        index = messagelist.index('!givepoints')
+        u = str(messagelist[index+1])
+        p = messagelist[index+2]
 
-    messagelist = message.split()
-    index = messagelist.index('!givepoints')
-    u = str(messagelist[index+1])
-    p = messagelist[index+2]
-
-    cursor.execute('UPDATE channelPoints SET points=points+? WHERE username=?',(p, u))
-    dbcon.commit()
-    sendmessage("{} has been given {} points".format(u, p))
+        cursor.execute('UPDATE channelPoints SET points=points+? WHERE username=?',(p, u))
+        dbcon.commit()
+        sendmessage("{} has been given {} points".format(u, p))
+    except:
+        print(traceback.format_exc())
 
 
 def sendmessage(text):
@@ -316,7 +325,7 @@ def commands(message, username):
         tablereport() 
 
     if '!points' in message:
-        requestpoints(message)
+        requestpoints(message, username)
 
     if '!givepoints' in message and username == 'jereck00':
         givepoints(message)
