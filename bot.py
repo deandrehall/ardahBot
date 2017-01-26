@@ -210,7 +210,7 @@ def anotherdoodle():
 def duel(challenger, target):
     global duel_list
     duel_list[target] = challenger
-    duelMessage = '/me {} has challenged {} to a duel PogChamp type !accept to confirm duel'.format(challenger, target)
+    duelMessage = '{} has challenged {} to a duel PogChamp type !accept to confirm duel'.format(challenger, target)
     sendmessage(duelMessage)
 
 
@@ -218,16 +218,17 @@ def cointoss(username):
     global duel_list
     coin = random.randint(0, 1)
     if coin == 0:
-        victory_message = '/me {} has won the duel against {}! PogChamp'.format(username, duel_list[username])
+        victory_message = '{} has won the duel against {}! PogChamp'.format(username, duel_list[username])
         sendmessage(victory_message)
     if coin == 1:
-        defeat_message = '/me {} has defeated {} in a duel! PogChamp'.format(duel_list[username], username)
+        defeat_message = '{} has defeated {} in a duel! PogChamp'.format(duel_list[username], username)
         sendmessage(defeat_message)
-        sendmessage('Never lucky BabyRage')
+
     del duel_list[username] 
 
 
 def commands(message, username):
+    message = message.lower()
     global duel_list
     if message == "!secret":
         sendSecret(username)
@@ -267,7 +268,9 @@ def commands(message, username):
 
         if messageList[index+1] == 'ardahBot'.lower():
             time.sleep((random.randint(1, 3)))
+            time.sleep(2)
             sendmessage('!accept')
+            time.sleep(2)
             cointoss('ardahbot')
 
     if message == '!accept' and username in duel_list:
