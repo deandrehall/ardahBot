@@ -12,10 +12,15 @@ import sys
 import sqlite3
 import datetime
 
+try:
+    CHAN = sys.argv[1]
+except:
+    CHAN = 'jereck00'
+
 # connecting to Twitch IRC 
 HOST = "irc.twitch.tv"  
 NICK = "ardahbot" 
-CHAN = 'jereck00'  # channel name 
+#CHAN = str(sys.argv[1])  # channel name 
 PORT = 6667
 PASS = "oauth:3hfhwlewgv2ydwkhohs6udttriheuo"
 readbuffer = ""
@@ -91,18 +96,13 @@ def requestpoints(message, username):
         print(traceback.format_exc())
 
 
-def givepoints(message):
+def givepoints(username, points):
     global dbcon
     global cursor
     try:
-        messagelist = message.split()
-        index = messagelist.index('!givepoints')
-        u = str(messagelist[index+1])
-        p = messagelist[index+2]
-
-        cursor.execute('UPDATE channelPoints SET points=points+? WHERE username=?',(p, u))
+        cursor.execute('UPDATE channelPoints SET points=points+? WHERE username=?',(points, username))
         dbcon.commit()
-        sendmessage("{} has been given {} points".format(u, p))
+#sendmessage("{} has been given {} point(s)".format(username, points))
     except:
         print(traceback.format_exc())
 
@@ -331,7 +331,11 @@ def commands(message, username):
         requestpoints(message, username)
 
     if '!givepoints' in message and username == 'jereck00':
-        givepoints(message)
+        messagelist = message.split()
+        index = messagelist.index('!givepoints')
+        u = str(messagelist[index+1]) #username
+        p = messagelist[index+2] #points
+        givepoints(u,p)
 
     if message == '!reconnect' and username == 'jereck00':
         socketconnection()
@@ -370,6 +374,7 @@ def messageloop():
                 username = usernamesplit[0]
                 
                 cursor.execute('INSERT OR IGNORE INTO channelPoints (username, points) VALUES (?,?)',(username,'0'))
+                givepoints(username, 1)
                 dbcon.commit()
 
                 print(username + ": " + message)
