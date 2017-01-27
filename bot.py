@@ -349,6 +349,31 @@ def commands(message, username):
 print('it that bot MrDestructoid')
 t = threading.Thread(target=puppet).start()
 
+def getUser(line):
+    user = ""
+    if line[1] == "PRIVMSG":
+        user = line[0]
+        user = user.split("!")
+        user = user[0]
+        user = user[1:]
+    return user
+
+def getMessage(line):
+    line = line[3:]
+    line = ' '.join(line)
+    return line[1:]
+
+def parseMessage(line):
+    username = getUser(line)
+    message = getMessage(line)
+    
+    cursor.execute('INSERT OR IGNORE INTO channelPoints (username, points) VALUES (?,?)',(username,'0'))
+    givepoints(username, 1)
+    dbcon.commit()
+
+    print(username + ": " + message)
+    commands(message, username.lower())
+
 def messageloop():
     while True: 
         global s, readbuffer, dbcon, cursor 
@@ -357,28 +382,14 @@ def messageloop():
         readbuffer = temp.pop() 
 
         for line in temp:
+            line = str.rstrip(line)
+            line = str.split(line)
             # Checks whether the message is PING because its a method of Twitch to check if you're afk
             if(line[0] == "PING"):
-                s.send(bytes("PONG %s\r\n" % line[1], "UTF-8"))
-            else:
-                # Splits the given string so we can work with it better
-                parts = str.split(line, ":")
+                s.send(bytes("PONG %s\r\n" % line[1], "UTF-8")) 
 
-                try:
-                    # Sets the message variable to the actual message sent
-                    message = parts[2][:len(parts[2]) - 1]
-                except:
-                    message = ""
-                # Sets the username variable to the actual username
-                usernamesplit = str.split(parts[1], "!")
-                username = usernamesplit[0]
-                
-                cursor.execute('INSERT OR IGNORE INTO channelPoints (username, points) VALUES (?,?)',(username,'0'))
-                givepoints(username, 1)
-                dbcon.commit()
-
-                print(username + ": " + message)
-                commands(message, username.lower())
+            if(len(line) > 3):
+                parseMessage(line)
 while True:
     try:
         messageloop()
