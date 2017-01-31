@@ -12,6 +12,7 @@ import sys
 import sqlite3
 import datetime
 
+#pulls channel name from the commandline. if there is no arg, channel name defaults to jereck00
 try:
     CHAN = sys.argv[1]
 except:
@@ -58,18 +59,18 @@ def socketconnection():
         s.send(bytes("CAP REQ :twitch.tv/tags\r\n", "UTF-8"))
     except:
         print(traceback.format_exc())
-
-if os.path.exists("{}DB.db".format(CHAN)):
-    dbcon = sqlite3.connect("{}DB.db".format(CHAN))
+#opens channel database or creates new database if one does not already exist
+if os.path.exists("{}DB".format(CHAN)):
+    dbcon = sqlite3.connect("{}DB".format(CHAN))
     cursor = dbcon.cursor()
 else:
-    dbcon = sqlite3.connect("{}DB.db".format(CHAN))
+    dbcon = sqlite3.connect("{}DB".format(CHAN))
     cursor = dbcon.cursor()
     cursor.execute('CREATE TABLE channelPoints(username text PRIMARY KEY,points INT DEFAULT 0)')
     dbcon.commit()
 
 #globals
-duel_list = {}
+duel_list = {} #dictionary used for the duel command
 memeteam = ["jereck00", "shin0l", "leo_n_milk"]
 
 def tablereport():
@@ -91,7 +92,7 @@ def requestpoints(message, username):
         elif len(messagelist) == 2:
             u = messagelist[index+1]
         cursor.execute('SELECT points FROM channelPoints WHERE username=?',((u,)))
-        sendmessage(cursor.fetchone()[0])
+        sendmessage('{} currently has {} point(s)'.format(username, cursor.fetchone()[0]))
     except:
         print(traceback.format_exc())
 
@@ -102,7 +103,6 @@ def givepoints(username, points):
     try:
         cursor.execute('UPDATE channelPoints SET points=points+? WHERE username=?',(points, username))
         dbcon.commit()
-#sendmessage("{} has been given {} point(s)".format(username, points))
     except:
         print(traceback.format_exc())
 
@@ -228,7 +228,7 @@ def cointoss(username):
 
 
 def commands(message, username):
-    message = message.lower()
+    
     global duel_list
     if message == "!secret":
         sendSecret(username)
@@ -310,24 +310,28 @@ def commands(message, username):
         sendmessage('https://github.com/deandrehall/ardahBot')
         
     if '!lookup' in message:
-        region = 'NA'
-        messageList = message.split()
-        index = messageList.index('!lookup')
-        messageList.remove(index)
-        summonerName = ' '.join(messageList)
-        responseJSON  = requestSummonerData(region, summonerName, APIKey)
-        ID = responseJSON[summonerName]['id']
-        ID = str(ID)
-        responseJSON2 = requestRankedData(region, ID, APIKey)
-        rank = responseJSON2[ID][0]['tier']
-        rank += " %s" % responseJSON2[ID][0]['entries'][0]['division']
-#sendmessage(rank)
-        sendmessage("{} {} LP".format(rank, responseJSON2[ID][0]['entries'][0]['leaguePoints']))
+        region = 'NA' 
+        summonerName = message.replace('!lookup', '').replace(' ', '')
+        try:
+            responseJSON  = requestSummonerData(region, summonerName, APIKey)
+            ID = responseJSON[summonerName]['id']
+        except KeyError:
+            sendmessage("The summoner name {} does not exist".format(summonerName))
+            print(traceback.format_exc())
+        try:
+            ID = str(ID) 
+            responseJSON2 = requestRankedData(region, ID, APIKey)
+            rank = responseJSON2[ID][0]['tier']
+            rank += " %s" % responseJSON2[ID][0]['entries'][0]['division']
+            sendmessage("Summoner {} is rank {}, {} LP".format(summonerName, rank, responseJSON2[ID][0]['entries'][0]['leaguePoints']))
+        except:
+            sendmessage("The summoner {} currently has no ranking".format(summonerName))
+            print(traceback.format_exc())
 
     if '!test' in message and username == 'jereck00':
         tablereport() 
 
-    if '!points' in message:
+    if '!points' in message and username == 'jereck00':
         requestpoints(message, username)
 
     if '!givepoints' in message and username == 'jereck00':
@@ -346,50 +350,38 @@ def commands(message, username):
     if message == '!followage':
         followage(username)
 
-print('it that bot MrDestructoid')
+sendmessage('MrDestructoid')
 t = threading.Thread(target=puppet).start()
 
-def getUser(line):
-    user = ""
-    if line[1] == "PRIVMSG":
-        user = line[0]
-        user = user.split("!")
-        user = user[0]
-        user = user[1:]
-    return user
-
-def getMessage(line):
-    line = line[3:]
-    line = ' '.join(line)
-    return line[1:]
-
-def parseMessage(line):
-    username = getUser(line)
-    message = getMessage(line)
-    
-    cursor.execute('INSERT OR IGNORE INTO channelPoints (username, points) VALUES (?,?)',(username,'0'))
-    givepoints(username, 1)
-    dbcon.commit()
-
-    print(username + ": " + message)
-    commands(message, username.lower())
-
 def messageloop():
-    while True: 
-        global s, readbuffer, dbcon, cursor 
+    while True:
+        global s, readbuffer, dbcon, cursor
+        
         readbuffer = readbuffer+s.recv(1024).decode("UTF-8")
         temp = str.split(readbuffer, "\n")
-        readbuffer = temp.pop() 
-
+        readbuffer = temp.pop()
+               
         for line in temp:
-            line = str.rstrip(line)
-            line = str.split(line)
-            # Checks whether the message is PING because its a method of Twitch to check if you're afk
             if(line[0] == "PING"):
-                s.send(bytes("PONG %s\r\n" % line[1], "UTF-8")) 
+                s.send(bytes("PONG %s\r\n" % line[1], "UTF-8"))
+            else:
+                parts = str.split(line, ":")
 
-            if(len(line) > 3):
-                parseMessage(line)
+                try:
+                    message = parts[2][:len(parts[2]) - 1]
+                except:
+                    message = ""
+
+                usernamesplit = str.split(parts[1], "!")
+                username = usernamesplit[0]
+
+                cursor.execute('INSERT OR IGNORE INTO channelPoints (username, points) VALUES (?,?)',(username,'0'))
+                givepoints(username, 1)
+                dbcon.commit()
+                
+                print(username + ": " + message)
+                commands(message.lower(), username.lower())
+
 while True:
     try:
         messageloop()
