@@ -122,7 +122,10 @@ def uptime():
     url = "https://api.rtainc.co/twitch/uptime?channel={}".format(CHAN)
     page = requests.get(url)
     for x in page:
-        sendmessage(x.strip().decode('UTF-8'))
+        if('is not streaming' not in x.strip().decode('UTF-8')):
+            sendmessage("{} has been online for {}".format(CHAN,x.strip().decode('UTF-8')))
+        else:
+            sendmessage(x.strip().decode('UTF-8'))
 
 
 def followage(username):
@@ -350,7 +353,7 @@ def commands(message, username):
     if message == '!followage':
         followage(username)
 
-sendmessage('MrDestructoid')
+sendmessage('HeyGuys')
 t = threading.Thread(target=puppet).start()
 
 def messageloop():
@@ -358,7 +361,8 @@ def messageloop():
         global s, readbuffer, dbcon, cursor
         
         readbuffer = readbuffer+s.recv(1024).decode("UTF-8")
-        temp = str.split(readbuffer, "\n")
+        temp = str.split(readbuffer, "\r\n")
+        temp = [ str(e.encode('UTF-8')).rstrip() for e in temp ]
         readbuffer = temp.pop()
                
         for line in temp:
@@ -369,6 +373,7 @@ def messageloop():
 
                 try:
                     message = parts[2][:len(parts[2]) - 1]
+                    
                 except:
                     message = ""
 
