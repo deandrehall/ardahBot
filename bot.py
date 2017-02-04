@@ -353,16 +353,22 @@ def commands(message, username):
     if message == '!followage':
         followage(username)
 
-sendmessage('HeyGuys')
+#sendmessage('HeyGuys')
 t = threading.Thread(target=puppet).start()
 
 def messageloop():
     while True:
         global s, readbuffer, dbcon, cursor
         
-        readbuffer = readbuffer+s.recv(1024).decode("UTF-8")
+        try:
+            readbuffer = readbuffer+s.recv(1024).decode("UTF-8") 
+        except KeyboardInterrupt:
+            raise
+        except:
+           print(traceback.format_exc())   
+        
         temp = str.split(readbuffer, "\r\n")
-        temp = [ str(e.encode('UTF-8')).rstrip() for e in temp ]
+#temp = [ str(e.encode('UTF-8')).rstrip() for e in temp ]
         readbuffer = temp.pop()
                
         for line in temp:
@@ -372,7 +378,7 @@ def messageloop():
                 parts = str.split(line, ":")
 
                 try:
-                    message = parts[2][:len(parts[2]) - 1]
+                    message = parts[2][:len(parts[2])]
                     
                 except:
                     message = ""
