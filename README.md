@@ -20,6 +20,7 @@ python3 bot.py <TARGET_CHANNEL>
 
 * '!points' -- shows the users current points
 * '!duel [target]' -- challenges target player to a duel
+* '!accept' -- accepts the pending duel that you have been challenged to
 * '!decline' -- decline the pending duel that you have been challenged to
 * '!lookup [target]' -- show the target summonername's current rank and LP using the League of Legends API
 * '!uptime' -- shows how long the current channel has been live
