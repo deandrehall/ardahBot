@@ -1,5 +1,5 @@
-
-
+###**Setup**
+```
 # IRC Server Address
 HOST = irc.twitch.tv
 # IRC Server Port
@@ -8,8 +8,9 @@ PORT = 6667
 NICK = BOTNAME
 # Twitch.tv auth code -- https://twitchapps.com/tmi/
 PASS = AUTHCODE
+```
 
-###**Running the BOT ->**
+###**Running the bot**
 ```
 python3 bot.py <TARGET_CHANNEL>
 
