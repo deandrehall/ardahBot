@@ -50,6 +50,7 @@ def socketconnection():
     global s, HOST, PORT, NICK, CHAN 
     try:
         s.close()
+        s.socket.socket()
         s.connect((HOST, PORT))
         s.send(bytes("PASS %s\r\n" % PASS, "UTF-8"))
         s.send(bytes("NICK %s\r\n" % NICK, "UTF-8"))
@@ -245,7 +246,7 @@ def commands(message, username):
     if message == "!whoami":
         sendmessage(username)
 
-    if message == "!corn":
+    if message == "!corn" and username in memeteam:
         sendmessage(
             "https://33.media.tumblr.com/b07644c8da2e4b15c6119d37078d2e16/tumblr_n6kja1gWkE1qln00mo2_400.gif")
 
@@ -285,11 +286,11 @@ def commands(message, username):
         sendmessage(decline_message)
         del duel_list[username]
         
-    if message == '!clearduels' and username == 'jereck00':
+    if message == '!clearduels' and username in memeteam:
         duel_list = {} 
         sendmessage('clearing duel list')
 
-    if message == '!n8iscool':
+    if message == '!n8iscool' and username in memeteam:
         sendmessage('http://i.imgur.com/fcWhKyU.jpg')
 
     if message == '!nice' and username in memeteam:
@@ -343,9 +344,6 @@ def commands(message, username):
         u = str(messagelist[index+1]) #username
         p = messagelist[index+2] #points
         givepoints(u,p)
-
-    if message == '!reconnect' and username == 'jereck00':
-        socketconnection()
 
     if message == '!uptime':
         uptime()
