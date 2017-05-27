@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import socket
 import string
 import random
@@ -16,7 +18,7 @@ import datetime
 try:
     CHAN = sys.argv[1]
 except:
-    CHAN = 'jereck00'
+    CHAN = 'jerecktone'
 
 # connecting to Twitch IRC 
 HOST = "irc.twitch.tv"  
