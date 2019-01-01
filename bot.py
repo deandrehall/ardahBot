@@ -22,10 +22,9 @@ except:
 
 # connecting to Twitch IRC 
 HOST = "irc.twitch.tv"  
-NICK = "ardahbot" 
-#CHAN = str(sys.argv[1])  # channel name 
+NICK = "ardahbot"  
 PORT = 6667
-PASS = "oauth:3hfhwlewgv2ydwkhohs6udttriheuo"
+PASS = sys.argv[2]
 readbuffer = ""
 MODT = False
 
@@ -34,7 +33,11 @@ CHANNEL_NAME = CHANNEL_NAME.lower()
 SLEEP_TIME = 120
 IRC_CHANNEL = "#" + CHANNEL_NAME
 
-APIKey = "RGAPI-c2b5b567-5229-46e9-b7b8-7eb218c1ea8f"
+#league api key for league commands
+try:
+    APIKey = sys.argv[3]
+except:
+    APIKey = ""
 
 HOST2 = "199.9.253.119"
 
